@@ -25,6 +25,8 @@ const {chromium}=require('playwright'),fs=require('fs'),assert=require('node:ass
   const content=name==='half_horizontal'?`${h}<div class="calendar-columns">${table(rows.slice(0,Math.ceil(count/2)))}${table(rows.slice(Math.ceil(count/2)))}</div>`:table(rows).replace('<table>',h+'<table>');
   await page.setContent(`<body class="trmnl"><style>${framework}\n:root{--screen-w:${width}px;--screen-h:${height}px}\n${css}</style><div class="screen screen--${device==='OG'?'sm':'lg'} screen--1bit"><div class="view view--${name}"><div class="${layout}" data-grouping="${grouped}">${content}</div><div class="title_bar"><span class="title" data-count-template="{count} events coming up">${count} events coming up</span><span class="instance">Updated 3 Nov</span></div></div></div><script>${script}</script>`,{waitUntil:'load'});
   await page.waitForTimeout(20);
+  const fonts=await page.locator('.layout h1, .layout td, .layout th, .layout .event-name, .layout .calendar-label').evaluateAll(nodes=>nodes.map(n=>getComputedStyle(n).fontFamily));
+  assert(fonts.every(font=>font.startsWith('Arial')), `Unexpected agenda font on ${device}/${name}: ${fonts.join('; ')}`);
   const metrics=await page.evaluate(()=>{
    const visible=[...document.querySelectorAll('.event-row:not([hidden])')],layout=document.querySelector('.layout'),footer=document.querySelector('.title_bar');
    return {visible:visible.length,indices:visible.map(r=>+r.dataset.index),font:visible.length?parseFloat(getComputedStyle(visible[0].querySelector('.event')).fontSize):0,boost:layout.style.getPropertyValue('--agenda-boost'),footer:footer.getBoundingClientRect().top,bottoms:[...document.querySelectorAll('table')].map(t=>t.getBoundingClientRect().bottom),labels:visible.map(r=>r.querySelector('.calendar-label').getBoundingClientRect().height),clamps:visible.map(r=>{const n=r.querySelector('.event-name');return n?{h:n.getBoundingClientRect().height,max:2.4*parseFloat(getComputedStyle(n).fontSize)}:null}),heading:document.querySelector('h1').textContent,text:footer.querySelector('.title').textContent};
@@ -50,7 +52,11 @@ const {chromium}=require('playwright'),fs=require('fs'),assert=require('node:ass
   assert(subset.find(r=>r.count===2).font>=subset.find(r=>r.count===15).font,`${device}/${name}: sparse events must have larger text`);
  }
  for(const name of ['full','half_vertical','half_horizontal','quadrant'])assert(results.find(r=>r.name===name&&r.device==='X'&&r.count===15&&!r.grouped).font>results.find(r=>r.name===name&&r.device==='OG'&&r.count===15&&!r.grouped).font,`${name}: X type should be larger`);
+ // Older Full markup has no native typography classes; Shared must still keep Arial.
+ await page.setContent(`<style>${framework}\n${css}</style><body class="trmnl"><div class="screen screen--sm"><div class="view view--full"><div class="layout agenda-full layout--col layout--top"><div class="next-ten"><h1>Coming Up</h1><table><tr class="section"><th>This week</th></tr><tr class="event-row"><td class="date">Sat, 7 Nov 2026</td><td class="time">14:30</td><td class="event">A day at the zoo <span class="calendar-label">Family Events</span></td></tr></table></div></div></div></div></body>`);
+ const oldFonts=await page.locator('h1, td, th, .calendar-label').evaluateAll(nodes=>nodes.map(n=>getComputedStyle(n).fontFamily));
+ assert(oldFonts.every(font=>font.startsWith('Arial')), 'Legacy Full markup must retain Arial');
  console.table(results.filter(r=>r.count!==0&&r.grouped));
- console.log('PASS: 80 real Framework combinations, native responsive typography, sparse enlargement, two-line clamp, calendar labels, chronology, counts and repeat fitting.');
+ console.log('PASS: 80 real Framework combinations, Arial including older Full markup, native responsive typography, sparse enlargement, two-line clamp, calendar labels, chronology, counts and repeat fitting.');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1});

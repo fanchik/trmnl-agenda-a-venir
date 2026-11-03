@@ -121,3 +121,5 @@ Run the real Framework layout matrix with `FRAMEWORK_CSS=/path/to/plugins.css BR
 Build with `python3 scripts/package.py /path/to/coming-up.zip` after rebuilding the Serverless bundle. The ZIP contains seven files at its root: complete `settings.yml`, `transform.js`, and the five Liquid views. It deliberately omits account IDs, private feed links and settings values. The icon must still be uploaded separately.
 
 Import into a test copy first, enter demo feeds, and preview all layouts on OG and X. To revise the existing recipe under review, update its four layout tabs, Shared tab, Serverless code and Custom Fields from these same files; keep the existing recipe master rather than submitting the test copy as a new recipe. The root repository `settings.yml` is the Custom Fields list; the ZIP's `settings.yml` also contains plugin configuration for importing.
+
+Arial is set explicitly on agenda text as well as through native typography tokens. Compatibility rules preserve the font and baseline sizing for older layout tabs that do not yet have the responsive text classes. Full responsive behavior still requires updating all four layout tabs.
