@@ -58,3 +58,20 @@
 .agenda-full .event-content { display: flex; align-items: center; gap: 8px; }
 .agenda-full .event-content .event-name { display: block; flex: 1; min-width: 0; white-space: nowrap; text-overflow: ellipsis; }
 .agenda-full .event-content .calendar-label { flex: 0 0 auto; max-width: 45%; overflow: hidden; text-overflow: ellipsis; }
+
+/* Keep Arial explicit, including older layout tabs without native text classes. */
+.layout[class*="agenda-"] .next-ten,
+.layout[class*="agenda-"] .next-ten h1,
+.layout[class*="agenda-"] .next-ten td,
+.layout[class*="agenda-"] .next-ten th,
+.layout[class*="agenda-"] .next-ten span,
+.layout.calendar-horizontal > h1 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+/* Compatibility for instances whose layout tabs predate responsive typography. */
+.next-ten h1:not(.title) { font-size: var(--title-font-size); }
+.next-ten td:not(.text--base):not(.text--small),
+.next-ten th:not(.text--base) { font-size: var(--font-base-font-size); }
+.next-ten .date:not(.text--small),
+.next-ten .time:not(.text--small),
+.next-ten .calendar-label:not(.text--small) { font-size: var(--font-small-font-size); }
