@@ -45,11 +45,6 @@
   field_type: boolean
   name: Group by Today, This week, Next week and Later
   default: true
-- keyname: time_zone
-  field_type: time_zone
-  name: Display timezone
-  description: Used for event times and Monday-to-Sunday week boundaries.
-  default: Europe/London
 - keyname: title_override
   field_type: string
   name: Custom title

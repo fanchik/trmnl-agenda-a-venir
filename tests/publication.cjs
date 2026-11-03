@@ -5,6 +5,7 @@ for (const name of layouts.filter(name => name !== 'shared')) {
   const source = fs.readFileSync(`layouts/${name}.html`, 'utf8');
   assert.equal((source.match(/class="layout /g) || []).length, 1, `${name} must contain one layout wrapper`);
   assert(source.includes('class="title_bar"'));
+  assert(source.includes('lg:text--large'), `${name} must use native responsive typography`);
 }
 const markup = layouts.map(name => fs.readFileSync(`layouts/${name}.html`, 'utf8')).join('\n');
 // Cover the broader best-practices list as well as the published Chef implementation.
@@ -18,3 +19,6 @@ for (let i = 1; i <= 5; i++) assert(transform.includes(`fields.ics_${i}`));
 assert(Buffer.byteLength(transform) < 100000);
 assert(fs.readFileSync('settings.yml', 'utf8').includes('field_type: author_bio'));
 console.log('Publication checks pass: zero documented style terms, zero inline styles, pinned stylesheet, explicit ICS fields and author bio.');
+
+assert(!fs.readFileSync('settings.yml','utf8').includes('keyname: time_zone'));
+assert(fs.readFileSync('src/serverless.js','utf8').includes('user?.time_zone_iana'));

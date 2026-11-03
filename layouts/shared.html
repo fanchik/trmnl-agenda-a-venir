@@ -1,8 +1,18 @@
 <!-- Shared stylesheet and responsive fitting used by all four layout tabs. -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kweninlondon/trmnl-calendar-coming-up@db4be7f85b13875856f2493abd8c69e757b86892/assets/coming-up.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kweninlondon/trmnl-calendar-coming-up@bfcde91928624d032256cabe74a188b684749c19/assets/coming-up.css">
 
 <script>
 (function () {
+  function enlarge(layout, fits) {
+    // Native typography tokens scale together, including dates and calendar labels.
+    for (const scale of [1.5, 1.25, 1.1]) {
+      layout.style.setProperty('--agenda-boost', String(scale));
+      const legible = Array.from(layout.querySelectorAll('.event-row:not([hidden]) .event')).every(cell => cell.getBoundingClientRect().width >= 70);
+      const datesFit = Array.from(layout.querySelectorAll('.event-row:not([hidden]) .date, .event-row:not([hidden]) .time')).every(cell => cell.scrollWidth <= cell.clientWidth + 1);
+      if (legible && datesFit && fits()) return;
+    }
+    layout.style.setProperty('--agenda-boost', '1');
+  }
   function fitCalendar() {
     document.querySelectorAll('.next-ten').forEach(function (root) {
       if (root.closest('.calendar-horizontal')) return;
@@ -23,12 +33,13 @@
           }
         });
       }
+      layout.style.setProperty('--agenda-boost', '1');
       rows.forEach(row => { row.hidden = false; });
       updateCount(events.length);
       if (!events.length) return;
       const bottom = Math.min(layout.getBoundingClientRect().bottom,
         footer ? footer.getBoundingClientRect().top : screen.getBoundingClientRect().bottom) - 8;
-      if (table.getBoundingClientRect().bottom <= bottom) return;
+      if (table.getBoundingClientRect().bottom <= bottom) { enlarge(layout, () => table.getBoundingClientRect().bottom <= bottom); return; }
       let visible = events.length;
       while (visible > 0) {
         const firstHidden = rows.indexOf(events[visible - 1]);
@@ -40,10 +51,12 @@
         updateCount(visible);
         if (table.getBoundingClientRect().bottom <= bottom) break;
       }
+      enlarge(layout, () => table.getBoundingClientRect().bottom <= bottom);
     });
   }
   function fitHorizontal() {
     document.querySelectorAll('.calendar-horizontal').forEach(function (layout) {
+      layout.style.setProperty('--agenda-boost', '1');
       const tables = Array.from(layout.querySelectorAll('table'));
       if (tables.length !== 2) return;
       if (!layout.calendarSourceRows) layout.calendarSourceRows = Array.from(layout.querySelectorAll('.event-row')).map(row => row.cloneNode(true));
@@ -73,7 +86,7 @@
             }
             const continuing = index === 0 && group === continuedGroup;
             const heading = document.createElement('tr'); heading.className = continuing ? 'section section-continuation' : 'section';
-            const cell = document.createElement('th'); cell.colSpan = 3; cell.className = 'text--left pt--1.5 pb--1 px--1.5';
+            const cell = document.createElement('th'); cell.colSpan = 3; cell.className = 'text--base lg:text--large text--left pt--1.5 pb--1 px--1.5';
             cell.textContent = group + (continuing ? ' (Cont.)' : '');
             heading.appendChild(cell); body.appendChild(heading); previous = group;
           }
@@ -96,7 +109,11 @@
             footer ? footer.getBoundingClientRect().top : screen.getBoundingClientRect().bottom) - 8;
           if (tables.every(table => table.getBoundingClientRect().bottom <= bottom)) { fits = true; break; }
         }
-        if (fits) break;
+        if (fits) {
+          const bottom = Math.min(layout.getBoundingClientRect().bottom, footer ? footer.getBoundingClientRect().top : screen.getBoundingClientRect().bottom) - 8;
+          enlarge(layout, () => tables.every(table => table.getBoundingClientRect().bottom <= bottom));
+          break;
+        }
       }
     });
   }

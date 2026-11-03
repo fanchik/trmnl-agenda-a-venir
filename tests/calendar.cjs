@@ -30,6 +30,11 @@ context.fetch=async ()=>({ok:true, headers:{get:()=>null}, text:async()=>header+
  context.fetch=async()=>{throw new Error('Should not fetch when polling supplied ICS');};
  const native=await context.run({data:polledText,trmnl:{plugin_settings:{custom_fields_values:{ics_1:'https://example.com/calendar.ics'}}}});
  assert.equal(native.error,''); assert.equal(native.events[0].title,'Native polling');
+ const timezoneFeed = header+event(['UID:zone','DTSTART:20300101T003000Z','DTEND:20300101T013000Z','SUMMARY:Midnight UTC'])+'END:VCALENDAR\r\n';
+ const accountZone=await context.run({data:timezoneFeed,trmnl:{user:{time_zone_iana:'America/Los_Angeles',time_zone:'Pacific Time (US & Canada)'},plugin_settings:{custom_fields_values:{ics_1:'https://example.com/calendar.ics',time_zone:'Europe/London'}}}});
+ assert.equal(accountZone.error,'');assert.equal(accountZone.events[0].time,'16:30');assert(accountZone.events[0].date.includes('31 Dec 2029'));
+ const utcZone=await context.run({data:timezoneFeed,trmnl:{plugin_settings:{custom_fields_values:{ics_1:'https://example.com/calendar.ics'}}}});
+ assert.equal(utcZone.error,'');assert.equal(utcZone.events[0].time,'00:30');
  const custom=await context.run({data:polledText,trmnl:{plugin_settings:{custom_fields_values:{ics_1:'https://example.com/calendar.ics',title_override:'My agenda'}}}});
  assert.equal(custom.title,'My agenda');
  const fields={event_limit:15,group_events:true,footer_override:'{count} visible / {limit} max / {calendar_count} calendars'};

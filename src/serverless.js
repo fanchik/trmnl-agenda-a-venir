@@ -162,7 +162,7 @@ function polledFeeds(input) {
 async function run(input) {
   const fields = input.trmnl?.plugin_settings?.custom_fields_values || input.custom_fields_values || {};
   const limit = Math.max(1, Math.min(15, parseInt(fields.event_limit, 10) || 10));
-  const zone = fields.time_zone || input.trmnl?.user?.time_zone || 'UTC';
+  const zone = input.trmnl?.user?.time_zone_iana || 'UTC';
   const now = new Date();
   const grouping = ![false, 'false', 'no', '0'].includes(fields.group_events);
   const urls = [...new Set([fields.ics_1, fields.ics_2, fields.ics_3, fields.ics_4, fields.ics_5].map(value => String(value || '').trim()).filter(Boolean))];

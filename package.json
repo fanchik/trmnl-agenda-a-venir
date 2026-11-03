@@ -5,7 +5,8 @@
   "description": "Upcoming events from up to five ICS calendars, processed on TRMNL",
   "scripts": {
     "build": "node scripts/build.cjs",
-    "test": "node tests/calendar.cjs && node tests/publication.cjs"
+    "test": "node tests/calendar.cjs && node tests/publication.cjs",
+    "test:layouts": "node tests/responsive.cjs"
   },
   "engines": {
     "node": ">=20"

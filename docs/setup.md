@@ -11,7 +11,7 @@ The recipe runs on TRMNL Serverless. No Google Apps Script project or Cloudflare
 
    This JSON endpoint triggers refreshes. Its contents are ignored. Do not put ICS feeds in the Polling URL box: direct Google ICS polling produced a Malformed JSON error in live testing.
 3. Paste `settings.yml` into Custom Fields and save.
-4. Enter one to five ICS links, your display timezone, a maximum of 1–15 events, and your grouping preference. Blank calendar inputs are ignored.
+4. Enter one to five ICS links, a maximum of 1–15 events, and your grouping preference. Blank calendar inputs are ignored.
 5. Open Edit Markup. Paste the complete `dist/serverless.js` into **Serverless → Node**.
 6. Paste `layouts/shared.html` into **Shared**. This is required by every layout.
 7. Paste each file into its matching tab:
@@ -52,7 +52,7 @@ Example: `{count} events coming up from {calendar_count} calendars`.
 
 ## Display behaviour
 
-Events are combined chronologically, without a future date cutoff. Ended events disappear; ongoing events remain. Recurring occurrences count separately. Optional groups are Today / This week / Next week / Later. Weeks run Monday–Sunday in the selected timezone. Empty groups are hidden.
+Events are combined chronologically, without a future date cutoff. Ended events disappear; ongoing events remain. Recurring occurrences count separately. Optional groups are Today / This week / Next week / Later. Weeks run Monday–Sunday in your TRMNL account timezone. Empty groups are hidden.
 
 Screen size determines how many events fit, up to the selected maximum. Narrow layouts wrap event names to two lines and retain a separate calendar label. Half horizontal reads down the left column, then the right. Dates omit the year in compact layouts.
 
@@ -85,17 +85,16 @@ node tests/calendar.cjs
 node tests/publication.cjs
 ```
 
-Browser checks require Playwright plus Chromium. Download the official stylesheet once and set `FRAMEWORK_CSS`; the fixture isolates its native spacing utilities from the page shell. Optionally set `BROWSER_PATH` for an existing browser:
+Browser checks require Playwright plus Chromium. Use the complete official stylesheet and physical screen dimensions, rather than a spacing-only fixture:
 
 ```sh
 curl -fL https://trmnl.com/css/3.4.0/plugins.css -o /tmp/trmnl-plugins.css
 export FRAMEWORK_CSS=/tmp/trmnl-plugins.css
-node tests/layout.cjs
-LAYOUT_FILE=layouts/half_vertical.html node tests/layout.cjs
-LAYOUT_FILE=layouts/quadrant.html node tests/layout.cjs
-node tests/horizontal.cjs
-node tests/horizontal-framework.cjs
+# Set BROWSER_PATH if using an installed Chrome executable.
+node tests/responsive.cjs
 ```
+
+The older `layout.cjs` and `horizontal.cjs` fixtures predate native typography; use `responsive.cjs` for current release validation.
 
 ICAL.js 2.2.1 is vendored under MPL-2.0. The build adapts its ES-module export for TRMNL; retain its license and upstream attribution. Our application code is MIT licensed.
 
@@ -106,3 +105,19 @@ This avoids embedding custom CSS in the markup that Chef scans. No calendar data
 Layout styles are scoped to each layout root to avoid cross-layout conflicts in mashups.
 When changing this stylesheet, publish its new commit and update Shared to pin that commit.
 `tests/publication.cjs` checks both the published Chef terms and the broader best-practices list.
+
+
+## Responsive sizing and account timezone
+
+All four layouts use native TRMNL typography with `lg:` variants for X. The fitting engine first keeps the largest chronological set that fits at the normal size, then tries larger text without dropping any of those events. Dates and calendar labels grow with the event title. Compact titles remain limited to two lines, with the calendar label below them. OG half-horizontal retains two columns and discreet continued-group headings.
+
+Event times and Monday-to-Sunday grouping use `trmnl.user.time_zone_iana` from the TRMNL account. The old timezone custom field is removed; a saved value from an earlier installation is ignored. If the account timezone is absent, the transform falls back to UTC. Change the account timezone in TRMNL to change the display timezone.
+
+Run the real Framework layout matrix with `FRAMEWORK_CSS=/path/to/plugins.css BROWSER_PATH=/path/to/chrome node tests/responsive.cjs`. It covers all four layouts on OG and X with empty, sparse and dense agendas, grouping on/off, long titles, separate calendar labels, count templates and repeated fitting. Optional `QA_DIR` saves previews. Portrait remains outside this release's supported test matrix.
+
+
+## Import package and updating the reviewed recipe
+
+Build with `python3 scripts/package.py /path/to/coming-up.zip` after rebuilding the Serverless bundle. The ZIP contains seven files at its root: complete `settings.yml`, `transform.js`, and the five Liquid views. It deliberately omits account IDs, private feed links and settings values. The icon must still be uploaded separately.
+
+Import into a test copy first, enter demo feeds, and preview all layouts on OG and X. To revise the existing recipe under review, update its four layout tabs, Shared tab, Serverless code and Custom Fields from these same files; keep the existing recipe master rather than submitting the test copy as a new recipe. The root repository `settings.yml` is the Custom Fields list; the ZIP's `settings.yml` also contains plugin configuration for importing.

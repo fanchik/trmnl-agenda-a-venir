@@ -7,7 +7,7 @@
     {% if heading_title == 'Upcoming events' and custom_title == blank %}
       {% assign heading_title = 'Coming Up' %}
     {% endif %}
-    <h1 class="mt--0 mb--1.5 mx--0" data-count-template="{{ title_count_template | escape }}">{{ heading_title | escape }}</h1>
+    <h1 class="title lg:title--large mt--0 mb--1.5 mx--0" data-count-template="{{ title_count_template | escape }}">{{ heading_title | escape }}</h1>
     {% if error != blank %}<p class="title">Calendar unavailable</p><p class="description">{{ error | escape }}</p>{% else %}
     <table>
       <colgroup>
@@ -21,13 +21,13 @@
       {% unless forloop.first %}
       <tr class="group-gap"><td class="py--0.5 px--0" colspan="3"></td></tr>
       {% endunless %}
-      <tr class="section"><th class="text--left pt--1.5 pb--1 px--1.5" colspan="3">{{ event.group | escape }}</th></tr>
+      <tr class="section"><th class="text--base lg:text--large text--left pt--1.5 pb--1 px--1.5" colspan="3">{{ event.group | escape }}</th></tr>
       {% assign previous_group = event.group %}
       {% endif %}
       <tr class="event-row">
-        <td class="date py--0.5 px--0">{{ event.date | escape }}</td>
-        <td class="time py--0.5 px--0">{{ event.time | escape }}</td>
-        <td class="event py--0.5 px--0">{{ event.title | escape }}{% if show_calendar %}<span class="calendar-label"> · {{ event.calendar | escape }}</span>{% endif %}</td>
+        <td class="date text--small lg:text--base py--0.5 px--0">{{ event.date | escape }}</td>
+        <td class="time text--small lg:text--base py--0.5 px--0">{{ event.time | escape }}</td>
+        <td class="event text--base lg:text--large py--0.5 px--0"><div class="event-content"><span class="event-name">{{ event.title | escape }}</span>{% if show_calendar %}<span class="calendar-label text--small lg:text--base">{{ event.calendar | escape }}</span>{% endif %}</div></td>
       </tr>
       {% else %}
       <tr><td>No upcoming events.</td></tr>

@@ -2,7 +2,7 @@
 
 Display upcoming events from up to five ICS calendars, however far ahead they are.
 
-**Status: ready for recipe submission.** The author has tested two live feeds, all four layouts, the Shared refactor, custom titles and footers, and a successful export/import into a fresh private plugin.
+**Status: human review revisions prepared.** Native responsive typography, count-aware enlargement and account timezone handling are covered by automated checks. Previous live testing covered two feeds, all four layouts, custom titles/footers and export/import. The revised build still needs previewing in TRMNL before resubmission.
 
 ## Features
 
@@ -10,6 +10,8 @@ Display upcoming events from up to five ICS calendars, however far ahead they ar
 - Maximum 1–15 events (default 10); fewer may fit on smaller screens.
 - Optional Today / This week / Next week / Later grouping, with Monday–Sunday weeks.
 - Full, half vertical, two-column half horizontal and quadrant layouts.
+- Native responsive typography for OG and X; sparse agendas enlarge text without dropping visible events.
+- Automatic timezone from the TRMNL account.
 - Separate calendar labels and two-line event names in compact layouts.
 - Default title includes the calendar name for a single feed; multiple feeds use Coming Up.
 - Custom title/footer, with `{count}` reporting visible events and `{limit}` reporting the chosen maximum.
