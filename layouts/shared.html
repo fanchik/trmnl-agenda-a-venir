@@ -3,15 +3,40 @@
 
 <script>
 (function () {
+  function sizeColumns(layout) {
+    // Reserve only the space the actual date/time text needs in CSS pixels.
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (!context) return;
+    layout.querySelectorAll('table').forEach(function (table) {
+      ['date', 'time'].forEach(function (name) {
+        const cells = Array.from(table.querySelectorAll('.event-row:not([hidden]) .' + name));
+        const col = table.querySelector('.agenda-' + name + '-col');
+        if (!col || !cells.length) return;
+        const width = Math.max(...cells.map(function (cell) {
+          const type = getComputedStyle(cell);
+          context.font = type.fontWeight + ' ' + type.fontSize + ' ' + type.fontFamily;
+          return context.measureText(cell.textContent.trim()).width;
+        }));
+        col.style.width = Math.ceil(width + 12) + 'px';
+      });
+    });
+  }
   function enlarge(layout, fits) {
-    // Native typography tokens scale together, including dates and calendar labels.
+    const titles = Array.from(layout.querySelectorAll('.event-row:not([hidden]) .event-name, .event-row:not([hidden]) .calendar-label'));
+    const lines = node => Math.max(1, Math.round(node.scrollHeight / parseFloat(getComputedStyle(node).lineHeight)));
+    const originalLines = titles.map(lines);
+    // More readable type must not turn single-line names into wrapped names.
     for (const scale of [1.5, 1.25, 1.1]) {
       layout.style.setProperty('--agenda-boost', String(scale));
+      sizeColumns(layout);
       const legible = Array.from(layout.querySelectorAll('.event-row:not([hidden]) .event')).every(cell => cell.getBoundingClientRect().width >= 70);
       const datesFit = Array.from(layout.querySelectorAll('.event-row:not([hidden]) .date, .event-row:not([hidden]) .time')).every(cell => cell.scrollWidth <= cell.clientWidth + 1);
-      if (legible && datesFit && fits()) return;
+      const namesFit = titles.every((node, index) => lines(node) <= originalLines[index]);
+      if (legible && datesFit && namesFit && fits()) return;
     }
     layout.style.setProperty('--agenda-boost', '1');
+    sizeColumns(layout);
   }
   function fitCalendar() {
     document.querySelectorAll('.next-ten').forEach(function (root) {
@@ -35,6 +60,7 @@
       }
       layout.style.setProperty('--agenda-boost', '1');
       rows.forEach(row => { row.hidden = false; });
+      sizeColumns(layout);
       updateCount(events.length);
       if (!events.length) return;
       const bottom = Math.min(layout.getBoundingClientRect().bottom,
@@ -49,6 +75,7 @@
         let lastEvent = visible ? rows.indexOf(events[visible - 1]) : -1;
         rows.forEach((row, index) => { if (index > lastEvent) row.hidden = true; });
         updateCount(visible);
+        sizeColumns(layout);
         if (table.getBoundingClientRect().bottom <= bottom) break;
       }
       enlarge(layout, () => table.getBoundingClientRect().bottom <= bottom);
@@ -105,6 +132,7 @@
           fill(tables[0], source.slice(0, split));
           fill(tables[1], source.slice(split, count), split ? source[split - 1].getAttribute('data-group') : undefined);
           updateCount(count);
+          sizeColumns(layout);
           const bottom = Math.min(layout.getBoundingClientRect().bottom,
             footer ? footer.getBoundingClientRect().top : screen.getBoundingClientRect().bottom) - 8;
           if (tables.every(table => table.getBoundingClientRect().bottom <= bottom)) { fits = true; break; }

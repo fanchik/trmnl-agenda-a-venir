@@ -27,6 +27,11 @@ Before submitting:
 - Sparse agendas grow by up to 50% after the fitter determines the largest visible chronological prefix. Enlargement never drops an event from that prefix.
 - Account `trmnl.user.time_zone_iana` replaces the custom timezone selector (UTC fallback when absent).
 - Full-view calendar labels have reserved space beside truncated event names.
-- Real Framework matrix covers OG (800x480) and X (1040x780), four views, 0/2/5/15 events and grouping on/off. Portrait is deferred.
+- Real Framework matrix covers OG (800x480) and X (1040x780), four views, 0/2/4/5/15 events and grouping on/off. Portrait is deferred.
 
 Import the supplied ZIP into a test copy and check the previews. Apply its files to the existing recipe master before asking Mario for another review. Do not replace the reviewed recipe with a new submission by accident. No support reply is sent automatically.
+
+
+### Follow-up: avoid unnecessary wrapping on X
+
+Enlargement now preserves the baseline title/calendar-label line counts, in addition to preserving event count. Date and time column widths are measured from their actual text at each candidate type size. This gives event titles the available width instead of reserving excessive fixed-width metadata columns. The OG/X half-horizontal regression uses the four reported titles (zoo, live music, Christmas market, new-year planning), and requires all four titles to remain on one line. Genuinely long compact-view titles may still wrap to two lines and then truncate.

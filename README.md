@@ -10,7 +10,7 @@ Display upcoming events from up to five ICS calendars, however far ahead they ar
 - Maximum 1–15 events (default 10); fewer may fit on smaller screens.
 - Optional Today / This week / Next week / Later grouping, with Monday–Sunday weeks.
 - Full, half vertical, two-column half horizontal and quadrant layouts.
-- Native responsive typography for OG and X; sparse agendas enlarge text without dropping visible events.
+- Native responsive typography for OG and X; sparse agendas enlarge text when it fits without dropping events or adding title wrapping.
 - Automatic timezone from the TRMNL account.
 - Separate calendar labels and two-line event names in compact layouts.
 - Default title includes the calendar name for a single feed; multiple feeds use Coming Up.

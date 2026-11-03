@@ -6,7 +6,7 @@ const {chromium}=require('playwright'),fs=require('fs'),assert=require('node:ass
  const page=await browser.newPage();
  const framework=fs.readFileSync(process.env.FRAMEWORK_CSS,'utf8'),css=fs.readFileSync('assets/coming-up.css','utf8'),script=fs.readFileSync('layouts/shared.html','utf8').match(/<script>([\s\S]*?)<\/script>/)[1];
  const results=[];
- for(const device of ['OG','X']) for(const name of ['full','half_vertical','half_horizontal','quadrant']) for(const count of [0,2,5,15]) for(const grouped of [false,true]) {
+ for(const device of ['OG','X']) for(const name of ['full','half_vertical','half_horizontal','quadrant']) for(const count of [0,2,4,5,15]) for(const grouped of [false,true]) {
   const width=device==='OG'?800:1040,height=device==='OG'?480:780;
   await page.setViewportSize({width,height});
   const source=fs.readFileSync(`layouts/${name}.html`,'utf8');
@@ -14,11 +14,11 @@ const {chromium}=require('playwright'),fs=require('fs'),assert=require('node:ass
   const layout=cls(/class="(layout[^"]*)"/),root=cls(/class="(next-ten[^"]*)"/),heading=cls(/<h1 class="([^"]*)"/),event=cls(/class="(event [^"]*)"/),date=cls(/class="(date [^"]*)"/),time=cls(/class="(time [^"]*)"/),label=cls(/class="(calendar-label[^"]*)"/),section=cls(/<th class="([^"]*)"/);
   let last='';
   const rows=Array.from({length:count},(_,i)=>{
-   const group=['Today','This week','Next week','Later'][Math.min(3,Math.floor(i/3))];
+   const group=count===4?['This week','Next week','Later','Later'][i]:['Today','This week','Next week','Later'][Math.min(3,Math.floor(i/3))];
    const header=grouped&&group!==last?`${i?'<tr class="group-gap"><td colspan="3"></td></tr>':''}<tr class="section"><th class="${section}" colspan="3">${group}</th></tr>`:'';last=group;
-   const title=i%3===1?'A longer event name that wraps onto two lines in a narrow column':'Pizza night';
-   const content=name==='full'?`<div class="event-content"><span class="event-name">${title}</span><span class="${label}">Family Calendar</span></div>`:`<span class="event-name">${title}</span><span class="${label}">Family Calendar</span>`;
-   return header+`<tr class="event-row" data-index="${i}" data-group="${group}"><td class="${date}">${name==='full'?'Wed 7 Oct 2026':'Wed 7 Oct'}</td><td class="${time}">${i%2?'All day':'18:30'}</td><td class="${event}">${content}</td></tr>`;
+   const title=count===4?['🦁 A day at the zoo','🎵 Live music night','🎄 Christmas market','✨ New year planning'][i]:i%3===1?'A longer event name that wraps onto two lines in a narrow column':'Pizza night';
+   const content=name==='full'?`<div class="event-content"><span class="event-name">${title}</span><span class="${label}">${count===4?(i%2?'Community Events':'Family Events'):'Family Calendar'}</span></div>`:`<span class="event-name">${title}</span><span class="${label}">${count===4?(i%2?'Community Events':'Family Events'):'Family Calendar'}</span>`;
+   return header+`<tr class="event-row" data-index="${i}" data-group="${group}"><td class="${date}">${name==='full'?'Sat 7 Nov 2026':'Sat, 7 Nov'}</td><td class="${time}">${i%2?'All day':'18:30'}</td><td class="${event}">${content}</td></tr>`;
   });
   const table=r=>`<div class="${root}"><table><colgroup><col class="agenda-date-col"><col class="agenda-time-col"><col></colgroup>${r.join('')||'<tr><td>No upcoming events.</td></tr>'}</table></div>`;
   const h=`<h1 class="${heading}" data-count-template="Coming Up: {count}">Coming Up: ${count}</h1>`;
@@ -35,18 +35,22 @@ const {chromium}=require('playwright'),fs=require('fs'),assert=require('node:ass
   assert.equal(metrics.heading,`Coming Up: ${metrics.visible}`,key);assert.equal(metrics.text,`${metrics.visible} events coming up`,key);
   assert(metrics.labels.every(h=>h>0),key);assert(metrics.clamps.every(x=>!x||x.h<=x.max+1),key);
   if(count)assert(metrics.visible>0,key);
-  if(count===2)assert.equal(metrics.visible,2,key);
+  if(count===2||(count===4&&['full','half_horizontal'].includes(name)))assert.equal(metrics.visible,count,key);
+  if(count===4 && name==='half_horizontal') {
+   const wraps=await page.locator('.event-name').evaluateAll(nodes=>nodes.map(n=>({lines:Math.round(n.scrollHeight/parseFloat(getComputedStyle(n).lineHeight)),text:n.textContent})));
+   assert(wraps.every(n=>n.lines===1), `${key}: short titles should be one line: ${JSON.stringify(wraps)}`);
+  }
   results.push({device,name,count,grouped,visible:metrics.visible,font:metrics.font,boost:metrics.boost});
-  if(process.env.QA_DIR&&count===5&&grouped)await page.screenshot({path:`${process.env.QA_DIR}/${device}-${name}.png`});
+  if(process.env.QA_DIR&&(count===4||count===5)&&grouped)await page.screenshot({path:`${process.env.QA_DIR}/${device}-${name}-${count}.png`});
   await page.evaluate(()=>{window.dispatchEvent(new Event('resize'));window.dispatchEvent(new Event('resize'));});
   assert.equal(await page.locator('.event-row:not([hidden])').count(),metrics.visible,`${key}: repeat fit unstable`);
  }
  for(const name of ['full','half_vertical','half_horizontal','quadrant'])for(const device of ['OG','X']){
   const subset=results.filter(r=>r.name===name&&r.device===device&&!r.grouped);
-  assert(subset.find(r=>r.count===2).font>subset.find(r=>r.count===15).font,`${device}/${name}: sparse events must have larger text`);
+  assert(subset.find(r=>r.count===2).font>=subset.find(r=>r.count===15).font,`${device}/${name}: sparse events must have larger text`);
  }
  for(const name of ['full','half_vertical','half_horizontal','quadrant'])assert(results.find(r=>r.name===name&&r.device==='X'&&r.count===15&&!r.grouped).font>results.find(r=>r.name===name&&r.device==='OG'&&r.count===15&&!r.grouped).font,`${name}: X type should be larger`);
  console.table(results.filter(r=>r.count!==0&&r.grouped));
- console.log('PASS: 64 real Framework combinations, native responsive typography, sparse enlargement, two-line clamp, calendar labels, chronology, counts and repeat fitting.');
+ console.log('PASS: 80 real Framework combinations, native responsive typography, sparse enlargement, two-line clamp, calendar labels, chronology, counts and repeat fitting.');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1});

@@ -109,11 +109,11 @@ When changing this stylesheet, publish its new commit and update Shared to pin t
 
 ## Responsive sizing and account timezone
 
-All four layouts use native TRMNL typography with `lg:` variants for X. The fitting engine first keeps the largest chronological set that fits at the normal size, then tries larger text without dropping any of those events. Dates and calendar labels grow with the event title. Compact titles remain limited to two lines, with the calendar label below them. OG half-horizontal retains two columns and discreet continued-group headings.
+All four layouts use native TRMNL typography with `lg:` variants for X. The fitting engine first keeps the largest chronological set that fits at the normal size, then tries larger text without dropping any of those events or introducing extra title/calendar-label wrapping. Date and time columns are measured from their actual text instead of expanding by a fixed width multiplier. Dates and calendar labels grow with the event title. Compact titles remain limited to two lines, with the calendar label below them. OG half-horizontal retains two columns and discreet continued-group headings.
 
 Event times and Monday-to-Sunday grouping use `trmnl.user.time_zone_iana` from the TRMNL account. The old timezone custom field is removed; a saved value from an earlier installation is ignored. If the account timezone is absent, the transform falls back to UTC. Change the account timezone in TRMNL to change the display timezone.
 
-Run the real Framework layout matrix with `FRAMEWORK_CSS=/path/to/plugins.css BROWSER_PATH=/path/to/chrome node tests/responsive.cjs`. It covers all four layouts on OG and X with empty, sparse and dense agendas, grouping on/off, long titles, separate calendar labels, count templates and repeated fitting. Optional `QA_DIR` saves previews. Portrait remains outside this release's supported test matrix.
+Run the real Framework layout matrix with `FRAMEWORK_CSS=/path/to/plugins.css BROWSER_PATH=/path/to/chrome node tests/responsive.cjs`. It covers all four layouts on OG and X with empty, sparse and dense agendas (including the four short emoji titles from the live review), grouping on/off, long titles, separate calendar labels, count templates and repeated fitting. Optional `QA_DIR` saves previews. Portrait remains outside this release's supported test matrix.
 
 
 ## Import package and updating the reviewed recipe
