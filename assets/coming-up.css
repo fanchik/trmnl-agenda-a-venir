@@ -75,3 +75,8 @@
 .next-ten .date:not(.text--small),
 .next-ten .time:not(.text--small),
 .next-ten .calendar-label:not(.text--small) { font-size: var(--font-small-font-size); }
+
+/* Compact names share one line only when both complete strings fit. */
+.next-ten .calendar-inline .event-name,
+.next-ten .calendar-inline .calendar-label { display: inline; white-space: nowrap; }
+.next-ten .calendar-inline .calendar-label::before { content: " · "; }
