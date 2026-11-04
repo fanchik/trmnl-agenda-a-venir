@@ -45,3 +45,8 @@ The previous X quadrant could fit only three labelled events across Today and Th
 ### Follow-up: use spare title width for calendar names
 
 Compact calendar names are inline beside the event title when both complete strings fit. Long titles retain two-line wrapping with the calendar name underneath. Capacity is measured after this arrangement, and enlargement preserves inline rows. The mashup regression includes a long appointment and requires at least six chronological events, with five short titles using inline calendar names and the appointment's calendar kept visible below it.
+
+
+### Follow-up: use spare space on the second title line
+
+Calendar names now flow after wrapped compact titles as well as single-line titles. A third calendar line remains allowed when needed. The title alone keeps its existing two-line clamp; it is not shortened to fit the calendar into two combined lines. Regression checks cover a second-line name when there is space and a third-line name when there is not, while preserving exactly the same title text.

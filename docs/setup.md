@@ -141,4 +141,9 @@ To roll out the labels, replace Custom Fields on the existing Recipe Master with
 
 ### Inline calendar names in compact views
 
-The fitter measures each complete title and calendar name at the current type size. If both fit, compact views use `Event title · Calendar name` on one line. Otherwise the title keeps its two-line clamp and the calendar name stays below it. Enlarging text may not turn a previously inline name back into a separate line. Single-calendar views without per-event names are unaffected. This works with existing layout tabs through Shared and the pinned stylesheet; no Custom Fields or Serverless update is needed.
+The fitter measures the title and calendar name at the current type size. Compact views use `Event title · Calendar name` on one line when possible. A wrapped title can share its second line with the calendar name; the name moves to a third line only if needed. The title alone keeps its existing two-line clamp. Enlarging text may not turn a previously inline name back into a separate line. Single-calendar views without per-event names are unaffected. This works with existing layout tabs through Shared and the pinned stylesheet; no Custom Fields or Serverless update is needed.
+
+
+### Calendar names after wrapped titles
+
+Compact calendar names follow the final title word rather than always starting a separate line. If the name fits beside the second title line, it stays there; otherwise a third line is allowed. The existing two-line title limit still applies, but no title text is shortened solely to make room for the calendar. Original titles are preserved in the rendered DOM so repeated fitting and resizing can restore them. Enlargement cannot shorten the title further than the readable baseline.

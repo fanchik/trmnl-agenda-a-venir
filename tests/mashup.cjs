@@ -6,7 +6,7 @@ const {chromium}=require('playwright'),fs=require('fs'),assert=require('node:ass
  try{
  const page=await browser.newPage({viewport:{width:1040,height:780}});
  const framework=fs.readFileSync(process.env.FRAMEWORK_CSS,'utf8'),css=fs.readFileSync('assets/coming-up.css','utf8');
- const script=fs.readFileSync('layouts/shared.html','utf8').match(/<script>([\s\S]*?)<\/script>/)[1];
+ const script=fs.readFileSync('layouts/shared.html','utf8').match(/<script>([\s\S]*?)<\/script>/)[1].replace('  function fitAll()', '  window.agendaSizeColumnsForTest = sizeColumns;\n  function fitAll()');
  const source=fs.readFileSync('layouts/quadrant.html','utf8');
  const cls=re=>source.match(re)[1], layout=cls(/class="(layout[^"]*)"/), root=cls(/class="(next-ten[^"]*)"/), head=cls(/<h1 class="([^"]*)"/), event=cls(/class="(event [^"]*)"/), date=cls(/class="(date [^"]*)"/), time=cls(/class="(time [^"]*)"/), section=cls(/<th class="([^"]*)"/), label=cls(/class="(calendar-label[^"]*)"/);
  const groups=['Today','This week','This week','This week','Next week','Next week','Next week','Next week','Next week','Next week'];
@@ -32,12 +32,35 @@ const {chromium}=require('playwright'),fs=require('fs'),assert=require('node:ass
   assert(dense[1].count>=6,'Inline calendar names must fit at least six events including a long appointment across three groups');
   assert(dense[1].inline>=5,'Short titles should keep the calendar beside them');
   const appointment=page.locator('#together .event-row[data-index="2"]');
-  assert.equal(await appointment.locator('.calendar-inline').count(),0,'Long appointment keeps the calendar underneath');
+  assert.equal(await appointment.locator('.calendar-packed').count(),1,'Calendar follows the final title line when there is room');
   assert.equal(await appointment.locator('.calendar-label').textContent(),'Busy');
   for(const m of dense){assert.deepEqual(m.indices,Array.from({length:m.count},(_,i)=>i));assert(m.table<=m.footer);assert.equal(m.text,`${m.count} events coming up`);}
+  const packed=await appointment.locator('.event').evaluate(cell=>{const title=cell.querySelector('.event-name'),label=cell.querySelector('.calendar-label'),zoom=cell.getBoundingClientRect().width/cell.offsetWidth;return {used:label.getBoundingClientRect().bottom-title.getClientRects()[0].top,budget:2*parseFloat(getComputedStyle(cell).lineHeight)*zoom};});
+  assert(packed.used<=packed.budget+1,'This appointment has room for its calendar on line two');
   await page.evaluate(()=>{window.dispatchEvent(new Event('resize'));window.dispatchEvent(new Event('resize'));});
   assert.deepEqual((await metrics()).map(x=>x.count),dense.map(x=>x.count),'Repeated fitting must not reduce counts');
   await render(2);const sparse=await metrics();assert.equal(sparse[1].count,2);assert(sparse[1].font>dense[1].font,'All available sparse events should get larger type');
+  const flow=await page.evaluate(()=>{
+    const layout=document.querySelector('#together .layout'),cell=layout.querySelector('.event-row .event');
+    const title=cell.querySelector('.event-name'),label=cell.querySelector('.calendar-label');
+    layout.style.setProperty('--agenda-boost','1');
+    const words='Community planning meeting for the upcoming activities with the committee to review the schedule and confirm arrangements for the annual event'.split(' ');
+    for(let count=4;count<=words.length;count++){
+      const original=words.slice(0,count).join(' ');
+      title.setAttribute('data-agenda-title',original);label.textContent='Community Events';
+      window.agendaSizeColumnsForTest(layout);
+      const fragments=Array.from(title.getClientRects()),first=fragments[0],last=fragments[fragments.length-1];
+      const line=parseFloat(getComputedStyle(cell).lineHeight),zoom=cell.getBoundingClientRect().width/cell.offsetWidth;
+      if(title.textContent!==original||!last||last.top<=first.top+line*zoom/2)continue;
+      if(label.getBoundingClientRect().bottom<=first.top+2*line*zoom+1)continue;
+      label.textContent='A';window.agendaSizeColumnsForTest(layout);
+      if(title.textContent===original&&label.getBoundingClientRect().bottom<=title.getClientRects()[0].top+2*line*zoom+1){
+        return {sameTitle:true,thirdWhenNeeded:true,secondWhenSpace:true};
+      }
+    }
+    return null;
+  });
+  assert.deepEqual(flow,{sameTitle:true,thirdWhenNeeded:true,secondWhenSpace:true},'Calendar uses spare second-line space without shortening the title, and can use a third line when needed');
   console.log('PASS: maximum readable density, sparse enlargement, two instances, chronological prefix, no footer overlap, own counts and repeated fitting.');
  }
  }finally{await browser.close();}
