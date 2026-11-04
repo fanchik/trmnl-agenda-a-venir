@@ -35,3 +35,8 @@ Import the supplied ZIP into a test copy and check the previews. Apply its files
 ### Follow-up: avoid unnecessary wrapping on X
 
 Enlargement now preserves the baseline title/calendar-label line counts, in addition to preserving event count. Date and time column widths are measured from their actual text at each candidate type size. This gives event titles the available width instead of reserving excessive fixed-width metadata columns. The OG/X half-horizontal regression uses the four reported titles (zoo, live music, Christmas market, new-year planning), and requires all four titles to remain on one line. Genuinely long compact-view titles may still wrap to two lines and then truncate.
+
+
+### Follow-up: maximise readable capacity before enlargement
+
+The previous X quadrant could fit only three labelled events across Today and This week at its normal 18px event size, then enlarged them to 27px. A new three-plugin mashup regression reproduces that failure. Capacity is now calculated at a readable compact floor (14px event text, 12px metadata; Full event floor 18px) before enlargement. With the same ten-event mock feed, the Together quadrant keeps five chronological events across Today/This week/Next week. A sparse two-event feed still enlarges. Calendar retrieval and custom fields are unchanged.

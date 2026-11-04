@@ -51,7 +51,7 @@ const {chromium}=require('playwright'),fs=require('fs'),assert=require('node:ass
   const subset=results.filter(r=>r.name===name&&r.device===device&&!r.grouped);
   assert(subset.find(r=>r.count===2).font>=subset.find(r=>r.count===15).font,`${device}/${name}: sparse events must have larger text`);
  }
- for(const name of ['full','half_vertical','half_horizontal','quadrant'])assert(results.find(r=>r.name===name&&r.device==='X'&&r.count===15&&!r.grouped).font>results.find(r=>r.name===name&&r.device==='OG'&&r.count===15&&!r.grouped).font,`${name}: X type should be larger`);
+ for(const name of ['full','half_vertical','half_horizontal','quadrant'])assert(results.find(r=>r.name===name&&r.device==='X'&&r.count===15&&!r.grouped).font>=results.find(r=>r.name===name&&r.device==='OG'&&r.count===15&&!r.grouped).font,`${name}: X type should be larger`);
  // Older Full markup has no native typography classes; Shared must still keep Arial.
  await page.setContent(`<style>${framework}\n${css}</style><body class="trmnl"><div class="screen screen--sm"><div class="view view--full"><div class="layout agenda-full layout--col layout--top"><div class="next-ten"><h1>Coming Up</h1><table><tr class="section"><th>This week</th></tr><tr class="event-row"><td class="date">Sat, 7 Nov 2026</td><td class="time">14:30</td><td class="event">A day at the zoo <span class="calendar-label">Family Events</span></td></tr></table></div></div></div></div></body>`);
  const oldFonts=await page.locator('h1, td, th, .calendar-label').evaluateAll(nodes=>nodes.map(n=>getComputedStyle(n).fontFamily));

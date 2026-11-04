@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node scripts/build.cjs",
     "test": "node tests/calendar.cjs && node tests/publication.cjs",
-    "test:layouts": "node tests/responsive.cjs"
+    "test:layouts": "node tests/responsive.cjs && node tests/mashup.cjs"
   },
   "engines": {
     "node": ">=20"

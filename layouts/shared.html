@@ -1,5 +1,5 @@
 <!-- Shared stylesheet and responsive fitting used by all four layout tabs. -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kweninlondon/trmnl-calendar-coming-up@2420c817db390da734f5407ec881e9eaefe26a6b/assets/coming-up.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kweninlondon/trmnl-calendar-coming-up@ac5307bde71d4f9f3240524a7f130983da6cde9e/assets/coming-up.css">
 
 <script>
 (function () {
@@ -22,12 +22,20 @@
       });
     });
   }
+  function readableScale(layout) {
+    const event = layout.querySelector('.event-row .event');
+    if (!event) return 1;
+    // Use the compact readable floor to find capacity before trying larger type.
+    const minimum = layout.classList.contains('agenda-full') ? 18 : 14;
+    return Math.min(1, minimum / parseFloat(getComputedStyle(event).fontSize));
+  }
   function enlarge(layout, fits) {
     const titles = Array.from(layout.querySelectorAll('.event-row:not([hidden]) .event-name, .event-row:not([hidden]) .calendar-label'));
     const lines = node => Math.max(1, Math.round(node.scrollHeight / parseFloat(getComputedStyle(node).lineHeight)));
     const originalLines = titles.map(lines);
+    const baseline = Number(layout.style.getPropertyValue('--agenda-boost')) || 1;
     // More readable type must not turn single-line names into wrapped names.
-    for (const scale of [1.5, 1.25, 1.1]) {
+    for (const scale of [1.5, 1.25, 1.1, 1, 0.9, 0.8].filter(scale => scale > baseline)) {
       layout.style.setProperty('--agenda-boost', String(scale));
       sizeColumns(layout);
       const legible = Array.from(layout.querySelectorAll('.event-row:not([hidden]) .event')).every(cell => cell.getBoundingClientRect().width >= 70);
@@ -35,7 +43,7 @@
       const namesFit = titles.every((node, index) => lines(node) <= originalLines[index]);
       if (legible && datesFit && namesFit && fits()) return;
     }
-    layout.style.setProperty('--agenda-boost', '1');
+    layout.style.setProperty('--agenda-boost', String(baseline));
     sizeColumns(layout);
   }
   function fitCalendar() {
@@ -60,6 +68,7 @@
       }
       layout.style.setProperty('--agenda-boost', '1');
       rows.forEach(row => { row.hidden = false; });
+      layout.style.setProperty('--agenda-boost', String(readableScale(layout)));
       sizeColumns(layout);
       updateCount(events.length);
       if (!events.length) return;
@@ -88,6 +97,7 @@
       if (tables.length !== 2) return;
       if (!layout.calendarSourceRows) layout.calendarSourceRows = Array.from(layout.querySelectorAll('.event-row')).map(row => row.cloneNode(true));
       const source = layout.calendarSourceRows;
+      layout.style.setProperty('--agenda-boost', String(readableScale(layout)));
       const screen = layout.closest('.screen') || layout.parentElement;
       const footer = layout.nextElementSibling && layout.nextElementSibling.classList.contains('title_bar')
         ? layout.nextElementSibling : layout.parentElement.querySelector('.title_bar');

@@ -109,7 +109,7 @@ When changing this stylesheet, publish its new commit and update Shared to pin t
 
 ## Responsive sizing and account timezone
 
-All four layouts use native TRMNL typography with `lg:` variants for X. The fitting engine first keeps the largest chronological set that fits at the normal size, then tries larger text without dropping any of those events or introducing extra title/calendar-label wrapping. Date and time columns are measured from their actual text instead of expanding by a fixed width multiplier. Dates and calendar labels grow with the event title. Compact titles remain limited to two lines, with the calendar label below them. OG half-horizontal retains two columns and discreet continued-group headings.
+All four layouts use native TRMNL typography with `lg:` variants for X. The fitting engine first keeps the largest chronological set that fits at a readable compact size (at least 14px event text in compact views and 18px in Full), then tries larger text without dropping any of those events or introducing extra title/calendar-label wrapping. Date and time columns are measured from their actual text instead of expanding by a fixed width multiplier. Dates and calendar labels grow with the event title, with compact metadata kept at least 12px. Compact titles remain limited to two lines, with the calendar label below them. OG half-horizontal retains two columns and discreet continued-group headings.
 
 Event times and Monday-to-Sunday grouping use `trmnl.user.time_zone_iana` from the TRMNL account. The old timezone custom field is removed; a saved value from an earlier installation is ignored. If the account timezone is absent, the transform falls back to UTC. Change the account timezone in TRMNL to change the display timezone.
 
@@ -123,3 +123,10 @@ Build with `python3 scripts/package.py /path/to/coming-up.zip` after rebuilding 
 Import into a test copy first, enter demo feeds, and preview all layouts on OG and X. To revise the existing recipe under review, update its four layout tabs, Shared tab, Serverless code and Custom Fields from these same files; keep the existing recipe master rather than submitting the test copy as a new recipe. The root repository `settings.yml` is the Custom Fields list; the ZIP's `settings.yml` also contains plugin configuration for importing.
 
 Arial is set explicitly on agenda text as well as through native typography tokens. Compatibility rules preserve the font and baseline sizing for older layout tabs that do not yet have the responsive text classes. Full responsive behavior still requires updating all four layout tabs.
+
+
+### X mashup density regression
+
+`node tests/mashup.cjs` uses the same `FRAMEWORK_CSS` and `BROWSER_PATH` variables. It renders two independent quadrant calendars above a half-horizontal plugin in the official `mashup--2Tx1B` shell. Ten short labelled events spanning Today, This week and Next week reproduce the prior three-event result; the readable-density fitter must retain at least five, with accurate per-instance counts and no footer overlap. The test also checks repeated fitting and enlargement for a genuinely sparse two-event feed. Baseline sizing is reset before every fit so a prior enlarged view cannot reduce the next render's capacity.
+
+For a mashup containing several private copies of Coming Up, update Shared in every copy to keep their fitting scripts and stylesheet versions consistent. `BIT_DEPTH=1` can be used with the mashup test for a raw black-and-white visual preview.
