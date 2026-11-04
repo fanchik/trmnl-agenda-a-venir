@@ -109,7 +109,7 @@ When changing this stylesheet, publish its new commit and update Shared to pin t
 
 ## Responsive sizing and account timezone
 
-All four layouts use native TRMNL typography with `lg:` variants for X. The fitting engine first keeps the largest chronological set that fits at a readable compact size (at least 14px event text in compact views and 18px in Full), then tries larger text without dropping any of those events or introducing extra title/calendar-label wrapping. Date and time columns are measured from their actual text instead of expanding by a fixed width multiplier. Dates and calendar labels grow with the event title, with compact metadata kept at least 12px. Compact titles remain limited to two lines, with the calendar label below them. OG half-horizontal retains two columns and discreet continued-group headings.
+All four layouts use native TRMNL typography with `lg:` variants for X. The fitting engine first keeps the largest chronological set that fits at a readable compact size (at least 14px event text in compact views and 18px in Full), then tries larger text without dropping any of those events or introducing extra title/calendar-label wrapping. Date and time columns are measured from their actual text instead of expanding by a fixed width multiplier. Dates and calendar labels grow with the event title, with compact metadata kept at least 12px. Compact titles remain limited to two lines, with the calendar label below them when needed; short titles share a line with their complete calendar name. OG half-horizontal retains two columns and discreet continued-group headings.
 
 Event times and Monday-to-Sunday grouping use `trmnl.user.time_zone_iana` from the TRMNL account. The old timezone custom field is removed; a saved value from an earlier installation is ignored. If the account timezone is absent, the transform falls back to UTC. Change the account timezone in TRMNL to change the display timezone.
 
@@ -137,3 +137,8 @@ For a mashup containing several private copies of Coming Up, update Shared in ev
 Each `Calendar 1` through `Calendar 5` group contains an optional Label and its ICS link together. Enter any reference label when adding the feed link. Labels stay saved in the form and can be left blank. They do not replace names read from ICS, change screen titles or event labels, or affect which feeds are fetched. Existing `ics_1` through `ics_5` keys are unchanged, so installed users keep their saved links.
 
 To roll out the labels, replace Custom Fields on the existing Recipe Master with the repository's root `settings.yml`. Save; installed users receive the additional optional settings. No layout, Shared or Serverless changes are needed for this update.
+
+
+### Inline calendar names in compact views
+
+The fitter measures each complete title and calendar name at the current type size. If both fit, compact views use `Event title · Calendar name` on one line. Otherwise the title keeps its two-line clamp and the calendar name stays below it. Enlarging text may not turn a previously inline name back into a separate line. Single-calendar views without per-event names are unaffected. This works with existing layout tabs through Shared and the pinned stylesheet; no Custom Fields or Serverless update is needed.

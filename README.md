@@ -13,7 +13,7 @@ Display upcoming events from up to five ICS calendars, however far ahead they ar
 - Full, half vertical, two-column half horizontal and quadrant layouts.
 - Native responsive typography for OG and X; sparse agendas enlarge text when it fits without dropping events or adding title wrapping.
 - Automatic timezone from the TRMNL account.
-- Separate calendar labels and two-line event names in compact layouts.
+- Calendar names beside short event titles when they fit; longer compact-view titles wrap to two lines with the calendar name underneath.
 - Default title includes the calendar name for a single feed; multiple feeds use Coming Up.
 - Custom title/footer, with `{count}` reporting visible events and `{limit}` reporting the chosen maximum.
 - Recurring events, excluded occurrences, moved occurrences and future occurrence changes/cancellations.

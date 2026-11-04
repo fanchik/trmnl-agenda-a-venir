@@ -40,3 +40,8 @@ Enlargement now preserves the baseline title/calendar-label line counts, in addi
 ### Follow-up: maximise readable capacity before enlargement
 
 The previous X quadrant could fit only three labelled events across Today and This week at its normal 18px event size, then enlarged them to 27px. A new three-plugin mashup regression reproduces that failure. Capacity is now calculated at a readable compact floor (14px event text, 12px metadata; Full event floor 18px) before enlargement. With the same ten-event mock feed, the Together quadrant keeps five chronological events across Today/This week/Next week. A sparse two-event feed still enlarges. Calendar retrieval and custom fields are unchanged.
+
+
+### Follow-up: use spare title width for calendar names
+
+Compact calendar names are inline beside the event title when both complete strings fit. Long titles retain two-line wrapping with the calendar name underneath. Capacity is measured after this arrangement, and enlargement preserves inline rows. The mashup regression includes a long appointment and requires at least six chronological events, with five short titles using inline calendar names and the appointment's calendar kept visible below it.

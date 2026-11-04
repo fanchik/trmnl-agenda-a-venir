@@ -39,7 +39,7 @@ const {chromium}=require('playwright'),fs=require('fs'),assert=require('node:ass
   if(count)assert(metrics.visible>0,key);
   if(count===2||(count===4&&['full','half_horizontal'].includes(name)))assert.equal(metrics.visible,count,key);
   if(count===4 && name==='half_horizontal') {
-   const wraps=await page.locator('.event-name').evaluateAll(nodes=>nodes.map(n=>({lines:Math.round(n.scrollHeight/parseFloat(getComputedStyle(n).lineHeight)),text:n.textContent})));
+   const wraps=await page.locator('.event-name').evaluateAll(nodes=>nodes.map(n=>({lines:getComputedStyle(n).display==='inline'?1:Math.round(n.scrollHeight/parseFloat(getComputedStyle(n).lineHeight)),text:n.textContent})));
    assert(wraps.every(n=>n.lines===1), `${key}: short titles should be one line: ${JSON.stringify(wraps)}`);
   }
   results.push({device,name,count,grouped,visible:metrics.visible,font:metrics.font,boost:metrics.boost});
