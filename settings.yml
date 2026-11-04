@@ -1,81 +1,81 @@
 - keyname: ics_1_label
   field_type: string
-  name: Calendar 1 label
+  name: Label
   description: Optional reminder for this link. Does not change the name shown on screen.
-  placeholder: e.g. Lily or Work
+  placeholder: Optional calendar label
   maxlength: 80
-  group: Calendars
+  group: Calendar 1
   optional: true
 
 - keyname: ics_1
   field_type: string
-  name: Calendar 1 ICS link
+  name: ICS link
   description: Paste the calendar feed link, not its browser viewing link.
-  group: Calendars
+  group: Calendar 1
   optional: false
 
 - keyname: ics_2_label
   field_type: string
-  name: Calendar 2 label
+  name: Label
   description: Optional reminder for this link. Does not change the name shown on screen.
-  placeholder: e.g. Lily or Work
+  placeholder: Optional calendar label
   maxlength: 80
-  group: Calendars
+  group: Calendar 2
   optional: true
 
 - keyname: ics_2
   field_type: string
-  name: Calendar 2 ICS link
+  name: ICS link
   description: Paste the calendar feed link, not its browser viewing link.
-  group: Calendars
+  group: Calendar 2
   optional: true
 
 - keyname: ics_3_label
   field_type: string
-  name: Calendar 3 label
+  name: Label
   description: Optional reminder for this link. Does not change the name shown on screen.
-  placeholder: e.g. Lily or Work
+  placeholder: Optional calendar label
   maxlength: 80
-  group: Calendars
+  group: Calendar 3
   optional: true
 
 - keyname: ics_3
   field_type: string
-  name: Calendar 3 ICS link
+  name: ICS link
   description: Paste the calendar feed link, not its browser viewing link.
-  group: Calendars
+  group: Calendar 3
   optional: true
 
 - keyname: ics_4_label
   field_type: string
-  name: Calendar 4 label
+  name: Label
   description: Optional reminder for this link. Does not change the name shown on screen.
-  placeholder: e.g. Lily or Work
+  placeholder: Optional calendar label
   maxlength: 80
-  group: Calendars
+  group: Calendar 4
   optional: true
 
 - keyname: ics_4
   field_type: string
-  name: Calendar 4 ICS link
+  name: ICS link
   description: Paste the calendar feed link, not its browser viewing link.
-  group: Calendars
+  group: Calendar 4
   optional: true
 
 - keyname: ics_5_label
   field_type: string
-  name: Calendar 5 label
+  name: Label
   description: Optional reminder for this link. Does not change the name shown on screen.
-  placeholder: e.g. Lily or Work
+  placeholder: Optional calendar label
   maxlength: 80
-  group: Calendars
+  group: Calendar 5
   optional: true
 
 - keyname: ics_5
   field_type: string
-  name: Calendar 5 ICS link
+  name: ICS link
   description: Paste the calendar feed link, not its browser viewing link.
-  group: Calendars
+  group: Calendar 5
   optional: true
 
 - keyname: event_limit

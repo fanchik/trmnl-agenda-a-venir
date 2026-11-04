@@ -134,6 +134,6 @@ For a mashup containing several private copies of Coming Up, update Shared in ev
 
 ## Calendar labels in settings
 
-Each ICS input has an optional `Calendar N label` field directly above it. Enter a reminder such as Lily, Work or School when adding the feed link. Labels stay saved in the form and can be left blank. They do not replace names read from ICS, change screen titles or event labels, or affect which feeds are fetched. Existing `ics_1` through `ics_5` keys are unchanged, so installed users keep their saved links.
+Each `Calendar 1` through `Calendar 5` group contains an optional Label and its ICS link together. Enter any reference label when adding the feed link. Labels stay saved in the form and can be left blank. They do not replace names read from ICS, change screen titles or event labels, or affect which feeds are fetched. Existing `ics_1` through `ics_5` keys are unchanged, so installed users keep their saved links.
 
 To roll out the labels, replace Custom Fields on the existing Recipe Master with the repository's root `settings.yml`. Save; installed users receive the additional optional settings. No layout, Shared or Serverless changes are needed for this update.

@@ -1,7 +1,7 @@
 const fs = require('fs'), vm = require('vm'), assert = require('assert');
 const context = vm.createContext({console, Date, Intl, URL, AbortSignal, TextDecoder, Uint8Array, setTimeout, clearTimeout});
 vm.runInContext(fs.readFileSync('dist/serverless.js','utf8'), context);
-const header='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nX-WR-CALNAME:Lily\r\n';
+const header='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nX-WR-CALNAME:Example\r\n';
 const event=(lines)=>'BEGIN:VEVENT\r\n'+lines.join('\r\n')+'\r\nEND:VEVENT\r\n';
 const now=new Date('2026-10-06T12:00:00Z');
 const parse=text=>context.parseFeed(header+text+'END:VCALENDAR\r\n',0,15,'Europe/London',now,Date.now()+1200);
@@ -24,7 +24,7 @@ context.AbortSignal = undefined;
 context.fetch=async ()=>({ok:true, headers:{get:()=>null}, text:async()=>header+event(['UID:z','DTSTART;VALUE=DATE:20300101','DTEND;VALUE=DATE:20300102','SUMMARY:Far ahead'])+'END:VCALENDAR\r\n'});
 (async()=>{
  const result=await context.run({trmnl:{plugin_settings:{custom_fields_values:{ics_1:'https://example.com/calendar.ics',event_limit:15,group_events:false,footer_override:'Next {count} from {calendar_count}'}}}});
- assert.equal(result.title,'Coming Up in Lily'); assert.equal(result.title_count_template,'Coming Up in Lily');
+ assert.equal(result.title,'Coming Up in Example'); assert.equal(result.title_count_template,'Coming Up in Example');
  assert.equal(result.error,''); assert.equal(result.events[0].group,''); assert.equal(result.footer,'Next 1 from 1');
  const polledText = header+event(['UID:p','DTSTART;VALUE=DATE:20300101','DTEND;VALUE=DATE:20300102','SUMMARY:Native polling'])+'END:VCALENDAR\r\n';
  context.fetch=async()=>{throw new Error('Should not fetch when polling supplied ICS');};
@@ -42,7 +42,7 @@ context.fetch=async ()=>({ok:true, headers:{get:()=>null}, text:async()=>header+
  for(let i=1;i<=5;i++){
   const address=`https://example.com/${i}.ics`;fields[`ics_${i}`]=address;
   const body=Array.from({length:4},(_,n)=>event([`UID:${i}-${n}`,`DTSTART;VALUE=DATE:203001${String(n*5+i).padStart(2,'0')}`,`DTEND;VALUE=DATE:203001${String(n*5+i+1).padStart(2,'0')}`,`SUMMARY:Feed ${i} event ${n}`])).join('');
-  fixtures[address]=header.replace('X-WR-CALNAME:Lily',`X-WR-CALNAME:Calendar ${i}`)+body+'END:VCALENDAR\r\n';
+  fixtures[address]=header.replace('X-WR-CALNAME:Example',`X-WR-CALNAME:Calendar ${i}`)+body+'END:VCALENDAR\r\n';
  }
  context.fetch=async address=>({ok:true,headers:{get:()=>null},text:async()=>fixtures[address]});
  const five=await context.run({trmnl:{plugin_settings:{custom_fields_values:fields}}});
