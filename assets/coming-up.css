@@ -2,10 +2,10 @@
    Scoped font tokens keep compact views readable; fitting enlarges only when it keeps every visible event. */
 .layout[class*="agenda-"] {
   --agenda-boost: 1;
-  --font-small-font-size: calc(12px * var(--agenda-boost));
+  --font-small-font-size: max(12px, calc(12px * var(--agenda-boost)));
   --font-small-line-height: 1.2;
   --font-small-font-family: Arial, Helvetica, sans-serif;
-  --font-base-font-size: calc(14px * var(--agenda-boost));
+  --font-base-font-size: max(12px, calc(14px * var(--agenda-boost)));
   --font-large-font-size: calc(18px * var(--agenda-boost));
   --font-base-line-height: 1.2;
   --font-large-line-height: 1.2;
