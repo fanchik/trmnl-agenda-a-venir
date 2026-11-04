@@ -80,3 +80,8 @@
 .next-ten .calendar-inline .event-name,
 .next-ten .calendar-inline .calendar-label { display: inline; white-space: nowrap; }
 .next-ten .calendar-inline .calendar-label::before { content: " · "; }
+
+/* Let the calendar follow the final title line, wrapping only when needed. */
+.next-ten .calendar-packed .event-name { display: inline; white-space: normal; }
+.next-ten .calendar-packed .calendar-label { display: inline-block; white-space: nowrap; }
+.next-ten .calendar-packed .calendar-label::before { content: " · "; }
