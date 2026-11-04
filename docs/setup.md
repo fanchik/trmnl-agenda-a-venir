@@ -130,3 +130,10 @@ Arial is set explicitly on agenda text as well as through native typography toke
 `node tests/mashup.cjs` uses the same `FRAMEWORK_CSS` and `BROWSER_PATH` variables. It renders two independent quadrant calendars above a half-horizontal plugin in the official `mashup--2Tx1B` shell. Ten short labelled events spanning Today, This week and Next week reproduce the prior three-event result; the readable-density fitter must retain at least five, with accurate per-instance counts and no footer overlap. The test also checks repeated fitting and enlargement for a genuinely sparse two-event feed. Baseline sizing is reset before every fit so a prior enlarged view cannot reduce the next render's capacity.
 
 For a mashup containing several private copies of Coming Up, update Shared in every copy to keep their fitting scripts and stylesheet versions consistent. `BIT_DEPTH=1` can be used with the mashup test for a raw black-and-white visual preview.
+
+
+## Calendar labels in settings
+
+Each ICS input has an optional `Calendar N label` field directly above it. Enter a reminder such as Lily, Work or School when adding the feed link. Labels stay saved in the form and can be left blank. They do not replace names read from ICS, change screen titles or event labels, or affect which feeds are fetched. Existing `ics_1` through `ics_5` keys are unchanged, so installed users keep their saved links.
+
+To roll out the labels, replace Custom Fields on the existing Recipe Master with the repository's root `settings.yml`. Save; installed users receive the additional optional settings. No layout, Shared or Serverless changes are needed for this update.

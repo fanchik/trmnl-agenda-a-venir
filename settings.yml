@@ -1,3 +1,12 @@
+- keyname: ics_1_label
+  field_type: string
+  name: Calendar 1 label
+  description: Optional reminder for this link. Does not change the name shown on screen.
+  placeholder: e.g. Lily or Work
+  maxlength: 80
+  group: Calendars
+  optional: true
+
 - keyname: ics_1
   field_type: string
   name: Calendar 1 ICS link
@@ -5,10 +14,28 @@
   group: Calendars
   optional: false
 
+- keyname: ics_2_label
+  field_type: string
+  name: Calendar 2 label
+  description: Optional reminder for this link. Does not change the name shown on screen.
+  placeholder: e.g. Lily or Work
+  maxlength: 80
+  group: Calendars
+  optional: true
+
 - keyname: ics_2
   field_type: string
   name: Calendar 2 ICS link
   description: Paste the calendar feed link, not its browser viewing link.
+  group: Calendars
+  optional: true
+
+- keyname: ics_3_label
+  field_type: string
+  name: Calendar 3 label
+  description: Optional reminder for this link. Does not change the name shown on screen.
+  placeholder: e.g. Lily or Work
+  maxlength: 80
   group: Calendars
   optional: true
 
@@ -19,10 +46,28 @@
   group: Calendars
   optional: true
 
+- keyname: ics_4_label
+  field_type: string
+  name: Calendar 4 label
+  description: Optional reminder for this link. Does not change the name shown on screen.
+  placeholder: e.g. Lily or Work
+  maxlength: 80
+  group: Calendars
+  optional: true
+
 - keyname: ics_4
   field_type: string
   name: Calendar 4 ICS link
   description: Paste the calendar feed link, not its browser viewing link.
+  group: Calendars
+  optional: true
+
+- keyname: ics_5_label
+  field_type: string
+  name: Calendar 5 label
+  description: Optional reminder for this link. Does not change the name shown on screen.
+  placeholder: e.g. Lily or Work
+  maxlength: 80
   group: Calendars
   optional: true
 

@@ -7,6 +7,7 @@ Display upcoming events from up to five ICS calendars, however far ahead they ar
 ## Features
 
 - One to five ICS feed links, combined chronologically.
+- Optional saved labels beside each feed link, for reference in settings only.
 - Maximum 1–15 events (default 10); fewer may fit on smaller screens.
 - Optional Today / This week / Next week / Later grouping, with Monday–Sunday weeks.
 - Full, half vertical, two-column half horizontal and quadrant layouts.
