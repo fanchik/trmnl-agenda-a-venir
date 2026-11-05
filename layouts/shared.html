@@ -1,4 +1,5 @@
 <!-- Shared stylesheet and responsive fitting used by all four layout tabs. -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fanchik/trmnl-agenda-a-venir@8c1e51d419a6a9f7c580ca5036dca7af2d0e396b/assets/agenda-fr.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kweninlondon/trmnl-calendar-coming-up@abee2ff8f574b86c9bfcc7792b4820b7701bd21c/assets/coming-up.css">
 
 <script>
@@ -172,7 +173,7 @@
             const continuing = index === 0 && group === continuedGroup;
             const heading = document.createElement('tr'); heading.className = continuing ? 'section section-continuation' : 'section';
             const cell = document.createElement('th'); cell.colSpan = 3; cell.className = 'text--base lg:text--large text--left pt--1.5 pb--1 px--1.5';
-            cell.textContent = group + (continuing ? ' (Cont.)' : '');
+            cell.textContent = group + (continuing ? ' (suite)' : '');
             heading.appendChild(cell); body.appendChild(heading); previous = group;
           }
           body.appendChild(row.cloneNode(true));
