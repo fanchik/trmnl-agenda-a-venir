@@ -20,5 +20,7 @@
 .agenda-quadrant .next-ten .calendar-label { font-size:9px !important; line-height:1.1 !important; }
 .agenda-quadrant .next-ten .event-name { line-height:1.12 !important; max-height:2.24em !important; }
 .agenda-quadrant .next-ten .group-gap td { height:2px !important; padding:0 !important; }
-.agenda-quadrant .calendar-marker { width:3px; height:0.8em; margin-right:3px; }
+/* Absolute marker: no extra line before block-level event titles. */
+.agenda-quadrant .next-ten td.event { position:relative; padding-left:8px !important; }
+.agenda-quadrant .calendar-marker { position:absolute; left:2px; top:4px; width:3px; height:0.85em; margin:0; }
 .agenda-quadrant .title_bar .title { display:none; }
