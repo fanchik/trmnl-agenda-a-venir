@@ -8,3 +8,15 @@
 .calendar-color-cyan { background-color:#0891b2; }
 .calendar-color-orange { background-color:#f97316; }
 .calendar-color-slate { background-color:#64748b; }
+
+/* Quadrant: fixed, compact type. Avoid large-screen lg utilities and sparse enlargement. */
+.layout.agenda-quadrant { --agenda-boost:1; --title-font-size:17px; --title-large-font-size:17px; }
+.agenda-quadrant .next-ten h1 { font-size:17px !important; line-height:1.15 !important; margin-bottom:5px !important; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.agenda-quadrant .next-ten .section th { font-size:12px !important; line-height:1.2 !important; padding:3px 5px !important; }
+.agenda-quadrant .next-ten td.event { font-size:12px !important; line-height:1.25 !important; padding:4px 2px !important; overflow-wrap:anywhere; }
+.agenda-quadrant .next-ten td.date,
+.agenda-quadrant .next-ten td.time { font-size:11px !important; line-height:1.2 !important; padding:3px 2px !important; white-space:normal; }
+.agenda-quadrant .next-ten .calendar-label { font-size:10px !important; }
+.agenda-quadrant .next-ten .event-name { line-height:1.25 !important; max-height:2.5em !important; }
+.agenda-quadrant .next-ten .group-gap td { height:3px; }
+.agenda-quadrant .calendar-marker { width:3px; height:0.9em; margin-right:4px; }
