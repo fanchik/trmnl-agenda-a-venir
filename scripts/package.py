@@ -19,8 +19,8 @@ polling_url: https://trmnl.com/custom_plugin_example_data.json
 polling_headers: ''
 polling_body: ''
 oauth_enabled: 'false'
-name: Coming Up Events
-description: Up to 15 events from 5 calendars
+name: Agenda à venir
+description: Agenda français de 1 à 5 calendriers ICS
 refresh_interval: 15
 custom_fields:
 """ + (root / 'settings.yml').read_text()
