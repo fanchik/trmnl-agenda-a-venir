@@ -12,14 +12,14 @@
   name: Couleur du calendrier 1
   default: blue
   options:
-    - [Bleu, blue]
-    - [Vert, green]
-    - [Ambre, amber]
-    - [Rose, rose]
-    - [Violet, violet]
-    - [Turquoise, cyan]
-    - [Orange, orange]
-    - [Gris, slate]
+    - Bleu: blue
+    - Vert: green
+    - Ambre: amber
+    - Rose: rose
+    - Violet: violet
+    - Turquoise: cyan
+    - Orange: orange
+    - Gris: slate
 
 - keyname: ics_1
   field_type: string
@@ -42,14 +42,14 @@
   name: Couleur du calendrier 2
   default: green
   options:
-    - [Bleu, blue]
-    - [Vert, green]
-    - [Ambre, amber]
-    - [Rose, rose]
-    - [Violet, violet]
-    - [Turquoise, cyan]
-    - [Orange, orange]
-    - [Gris, slate]
+    - Bleu: blue
+    - Vert: green
+    - Ambre: amber
+    - Rose: rose
+    - Violet: violet
+    - Turquoise: cyan
+    - Orange: orange
+    - Gris: slate
 
 - keyname: ics_2
   field_type: string
@@ -72,14 +72,14 @@
   name: Couleur du calendrier 3
   default: amber
   options:
-    - [Bleu, blue]
-    - [Vert, green]
-    - [Ambre, amber]
-    - [Rose, rose]
-    - [Violet, violet]
-    - [Turquoise, cyan]
-    - [Orange, orange]
-    - [Gris, slate]
+    - Bleu: blue
+    - Vert: green
+    - Ambre: amber
+    - Rose: rose
+    - Violet: violet
+    - Turquoise: cyan
+    - Orange: orange
+    - Gris: slate
 
 - keyname: ics_3
   field_type: string
@@ -102,14 +102,14 @@
   name: Couleur du calendrier 4
   default: rose
   options:
-    - [Bleu, blue]
-    - [Vert, green]
-    - [Ambre, amber]
-    - [Rose, rose]
-    - [Violet, violet]
-    - [Turquoise, cyan]
-    - [Orange, orange]
-    - [Gris, slate]
+    - Bleu: blue
+    - Vert: green
+    - Ambre: amber
+    - Rose: rose
+    - Violet: violet
+    - Turquoise: cyan
+    - Orange: orange
+    - Gris: slate
 
 - keyname: ics_4
   field_type: string
@@ -132,14 +132,14 @@
   name: Couleur du calendrier 5
   default: violet
   options:
-    - [Bleu, blue]
-    - [Vert, green]
-    - [Ambre, amber]
-    - [Rose, rose]
-    - [Violet, violet]
-    - [Turquoise, cyan]
-    - [Orange, orange]
-    - [Gris, slate]
+    - Bleu: blue
+    - Vert: green
+    - Ambre: amber
+    - Rose: rose
+    - Violet: violet
+    - Turquoise: cyan
+    - Orange: orange
+    - Gris: slate
 
 - keyname: ics_5
   field_type: string
@@ -182,8 +182,8 @@
   name: À propos d’Agenda à venir
   field_type: author_bio
   category: calendar,productivity
-  github_url: https://github.com/kweninlondon/trmnl-calendar-coming-up
-  learn_more_url: https://github.com/kweninlondon/trmnl-calendar-coming-up#readme
+  github_url: https://github.com/fanchik/trmnl-agenda-a-venir
+  learn_more_url: https://github.com/fanchik/trmnl-agenda-a-venir#readme
   description: >-
     Coming Up displays your next calendar events, however far ahead they are.
     Combine up to five ICS calendars into one chronological agenda, with a maximum
@@ -204,9 +204,9 @@
   description: Choisissez entre un rappel quotidien, un rappel au début et à la fin, ou aucun affichage.
   default: boundaries
   options:
-    - [Chaque jour, daily]
-    - [Début et fin uniquement, boundaries]
-    - [Masquer, hide]
+    - Chaque jour: daily
+    - Début et fin uniquement: boundaries
+    - Masquer: hide
 
 - keyname: show_calendar_names
   field_type: boolean
