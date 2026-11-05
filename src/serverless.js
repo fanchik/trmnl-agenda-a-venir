@@ -75,7 +75,7 @@ function parseFeed(text, index, limit, zone, now, deadline, mode = 'boundaries',
     const multiDay = startDay !== endDay;
     const label = clean(item.summary || '(Sans titre)', 100);
     if (!multiDay) {
-      pushRow(label, startMs, allDay);
+      pushRow(label, startMs, allDay, undefined, startDay);
     } else if (mode === 'hide') {
       return false;
     } else if (mode === 'daily') {
@@ -96,7 +96,7 @@ function parseFeed(text, index, limit, zone, now, deadline, mode = 'boundaries',
         if (rows.length >= limit) break;
       }
     } else {
-      if (startMs >= now.getTime()) pushRow('Début : ' + label, startMs, allDay);
+      if (startMs >= now.getTime()) pushRow('Début : ' + label, startMs, allDay, undefined, startDay);
       const finishMs = allDay ? Date.parse(endDay + 'T12:00:00Z') : endMs;
       if (finishMs >= now.getTime()) pushRow('Fin : ' + label, finishMs, allDay, allDay ? 'Toute la journée' : undefined, endDay);
     }
