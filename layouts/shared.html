@@ -1,6 +1,6 @@
 <!-- Shared stylesheet and responsive fitting used by all four layout tabs. -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fanchik/trmnl-agenda-a-venir@8c1e51d419a6a9f7c580ca5036dca7af2d0e396b/assets/agenda-fr.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kweninlondon/trmnl-calendar-coming-up@abee2ff8f574b86c9bfcc7792b4820b7701bd21c/assets/coming-up.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fanchik/trmnl-agenda-a-venir@8aff0521ee572a86d77f7f4e502a9336508d62fd/assets/agenda-fr.css">
 
 <script>
 (function () {
@@ -76,6 +76,8 @@
     return Math.min(1, minimum / parseFloat(getComputedStyle(event).fontSize));
   }
   function enlarge(layout, fits) {
+    // Quadrant is deliberately compact even with only one or two events.
+    if (layout.classList.contains('agenda-quadrant')) return;
     const titles = Array.from(layout.querySelectorAll('.event-row:not([hidden]) .event-name, .event-row:not([hidden]) .calendar-label'));
     const lines = node => Math.max(1, Math.round(node.scrollHeight / parseFloat(getComputedStyle(node).lineHeight)));
     const originalLines = titles.map(lines);
