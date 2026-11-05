@@ -123,8 +123,12 @@
       sizeColumns(layout);
       updateCount(events.length);
       if (!events.length) return;
-      const bottom = Math.min(layout.getBoundingClientRect().bottom,
-        footer ? footer.getBoundingClientRect().top : screen.getBoundingClientRect().bottom) - 8;
+      // When the quadrant has no title bar, use its allocated mashup view,
+      // not the layout's content height (which can be smaller than the view).
+      const view = layout.closest('.view') || screen;
+      const bottom = footer
+        ? Math.min(layout.getBoundingClientRect().bottom, footer.getBoundingClientRect().top) - 4
+        : view.getBoundingClientRect().bottom - 4;
       if (table.getBoundingClientRect().bottom <= bottom) { enlarge(layout, () => table.getBoundingClientRect().bottom <= bottom); return; }
       let visible = events.length;
       while (visible > 0) {
