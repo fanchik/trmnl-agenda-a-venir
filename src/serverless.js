@@ -241,7 +241,7 @@ async function run(input) {
     monday.setUTCDate(monday.getUTCDate() - ((monday.getUTCDay() + 6) % 7));
     const next = new Date(monday); next.setUTCDate(next.getUTCDate() + 7);
     const later = new Date(monday); later.setUTCDate(later.getUTCDate() + 14);
-    const events = selected.map(e => ({title: e.title, date: e.date, time: e.time, calendar: e.calendar, calendar_color: e.calendar_color, calendar_index: e.calendar_index,
+    const events = selected.map(e => ({title: e.title, date: e.date, short_date: new Intl.DateTimeFormat('fr-FR', {timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short'}).format(new Date(e.date_key + 'T12:00:00Z')), time: e.time, calendar: e.calendar, calendar_color: e.calendar_color, calendar_index: e.calendar_index,
       group: grouping ? (e.date_key <= today ? 'Aujourd’hui' : e.date_key < next.toISOString().slice(0, 10) ? 'Cette semaine' : e.date_key < later.toISOString().slice(0, 10) ? 'Semaine prochaine' : 'Plus tard') : ''}));
     const values = {count: events.length, limit, calendars: feeds.map(f => f.name).join(', '), calendar_count: feeds.length,
       description: feeds.length === 1 ? feeds[0].description : ''};
