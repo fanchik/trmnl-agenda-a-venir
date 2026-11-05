@@ -15,12 +15,12 @@ jobs:
         with:
           ref: feat/fr-multijours-couleurs
       - name: Construire le ZIP
-        run: python3 scripts/package.py exports/agenda-a-venir-v5.zip
+        run: python3 scripts/package.py exports/agenda-a-venir-v6.zip
       - name: Vérifier les fichiers ZIP
         run: |
           python3 - <<'PY'
           import zipfile, yaml
-          path='exports/agenda-a-venir-v5.zip'
+          path='exports/agenda-a-venir-v6.zip'
           with zipfile.ZipFile(path) as z:
               assert z.testzip() is None
               assert len(z.namelist()) == 7
@@ -33,12 +33,12 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add exports/agenda-a-venir-v5.zip
+          git add exports/agenda-a-venir-v6.zip
           if ! git diff --cached --quiet; then
             git commit -m "build: ZIP TRMNL prêt à importer"
             git push origin HEAD:feat/fr-multijours-couleurs
           fi
       - uses: actions/upload-artifact@v4
         with:
-          name: agenda-a-venir-v5
-          path: exports/agenda-a-venir-v5.zip
+          name: agenda-a-venir-v6
+          path: exports/agenda-a-venir-v6.zip
