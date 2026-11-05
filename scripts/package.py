@@ -20,7 +20,7 @@ polling_headers: ''
 polling_body: ''
 oauth_enabled: 'false'
 name: Agenda à venir
-description: Agenda français de 1 à 5 calendriers ICS
+description: Agenda français multi-calendriers
 refresh_interval: 15
 custom_fields:
 """ + (root / 'settings.yml').read_text()
@@ -28,6 +28,7 @@ files = {'settings.yml': settings, 'transform.js': (root / 'dist/serverless.js')
 for name in ['full', 'half_vertical', 'half_horizontal', 'quadrant', 'shared']:
     files[name + '.liquid'] = (root / 'layouts' / (name + '.html')).read_text()
 assert len(files['transform.js'].encode()) < 100000
+assert len('Agenda français multi-calendriers') <= 35
 assert 'keyname: time_zone' not in settings
 assert 'custom_fields_values:' not in settings
 output.parent.mkdir(parents=True, exist_ok=True)
