@@ -39,6 +39,17 @@ assert.equal(dst.events.length,2);
 assert.equal(dst.events[0].date_key,'2026-10-24');
 assert.equal(dst.events[1].date_key,'2026-10-26');
 
+// Large Google-style history must not hide future events behind obsolete entries.
+const historic = Array.from({length: 500}, (_, i) => event([
+  'UID:old-' + i, 'DTSTART;VALUE=DATE:20190101',
+  'DTEND;VALUE=DATE:20190102', 'SUMMARY:Historique'
+])).join('');
+const futureEvent = event(['UID:next','DTSTART;VALUE=DATE:20261224','DTEND;VALUE=DATE:20261225','SUMMARY:Noël']);
+const heavy = context.parseFeed(header + historic + futureEvent + 'END:VCALENDAR\\r\\n',
+  0, 15, 'Europe/Berlin', now, Date.now() + 2200);
+assert.equal(heavy.events.length, 1);
+assert.equal(heavy.events[0].title, 'Noël');
+
 context.AbortSignal = undefined;
 context.fetch=async ()=>({ok:true, headers:{get:()=>null}, text:async()=>header+event(['UID:z','DTSTART;VALUE=DATE:20300101','DTEND;VALUE=DATE:20300102','SUMMARY:Far ahead'])+'END:VCALENDAR\r\n'});
 (async()=>{
