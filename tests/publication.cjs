@@ -9,8 +9,10 @@ for (const name of layouts.filter(name => name !== 'shared')) {
 }
 const markup = layouts.map(name => fs.readFileSync(`layouts/${name}.html`, 'utf8')).join('\n');
 // Cover the broader best-practices list as well as the published Chef implementation.
-const properties = ['display', 'justify-content', 'padding', 'margin', 'background-color', 'color', 'border-radius', 'text-align', 'object-fit', 'font-size'];
+const properties = ['display', 'justify-content', 'padding', 'margin', 'background-color', 'border-radius', 'text-align', 'object-fit', 'font-size'];
 for (const property of properties) assert(!markup.includes(property), `Publication markup contains ${property}`);
+// Color identifiers in CSS class names are allowed; inline CSS properties are not.
+assert(!/\bcolor\s*:/i.test(markup), 'Publication markup contains inline color declaration');
 assert(!/\bstyle\s*=/i.test(markup), 'Publication markup contains an inline style attribute');
 assert(!/<style\b/i.test(markup), 'Publication markup contains an embedded stylesheet');
 assert(/<link rel="stylesheet" href="https:\/\/cdn\.jsdelivr\.net\/gh\/kweninlondon\/trmnl-calendar-coming-up@[a-f0-9]{40}\/assets\/coming-up\.css">/.test(markup), 'Stylesheet URL must pin an immutable commit');
