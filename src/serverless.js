@@ -11,6 +11,14 @@ function parts(date, zone) {
 function dayKey(date, zone) {
   const p = parts(date, zone); return `${p.year}-${p.month}-${p.day}`;
 }
+// French date labels are built explicitly: some TRMNL runtimes have English-only Intl data.
+const DAYS_FR = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+const MONTHS_FR = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+function frenchDate(key, short = false) {
+  const [year, month, day] = key.split('-').map(Number);
+  const weekday = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
+  return DAYS_FR[weekday] + ' ' + day + ' ' + MONTHS_FR[month - 1] + (short ? '' : ' ' + year);
+}
 function civilDate(time) {
   return `${time.year}-${String(time.month).padStart(2, '0')}-${String(time.day).padStart(2, '0')}`;
 }
@@ -48,15 +56,13 @@ function parseFeed(text, index, limit, zone, now, deadline, mode = 'boundaries',
   const overrides = components.filter(c => c.hasProperty('recurrence-id'));
   const rows = [];
   const seen = new Set();
-  const localizedDate = (ms, allDay) => new Intl.DateTimeFormat('fr-FR', {
-    timeZone: allDay ? 'UTC' : zone, weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
-  }).format(new Date(ms));
+  const localizedDate = (key) => frenchDate(key);
   const localizedTime = (ms, allDay) => allDay ? 'Toute la journée' :
     new Intl.DateTimeFormat('fr-FR', {timeZone: zone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23'}).format(new Date(ms));
   const pushRow = (title, ms, allDay, eventTime, dateOverride) => {
     const key = dateOverride || (allDay ? new Date(ms).toISOString().slice(0, 10) : dayKey(new Date(ms), zone));
     rows.push({title, calendar: name, calendar_index: index + 1, calendar_color: color,
-      date_key: key, sort: ms, date: localizedDate(allDay ? Date.parse(key + 'T12:00:00Z') : ms, allDay),
+      date_key: key, sort: ms, date: localizedDate(key),
       time: eventTime || localizedTime(ms, allDay)});
   };
   function add(item, start, end, identity) {
@@ -241,7 +247,7 @@ async function run(input) {
     monday.setUTCDate(monday.getUTCDate() - ((monday.getUTCDay() + 6) % 7));
     const next = new Date(monday); next.setUTCDate(next.getUTCDate() + 7);
     const later = new Date(monday); later.setUTCDate(later.getUTCDate() + 14);
-    const events = selected.map(e => ({title: e.title, date: e.date, short_date: new Intl.DateTimeFormat('fr-FR', {timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short'}).format(new Date(e.date_key + 'T12:00:00Z')), time: e.time, calendar: e.calendar, calendar_color: e.calendar_color, calendar_index: e.calendar_index,
+    const events = selected.map(e => ({title: e.title, date: e.date, short_date: frenchDate(e.date_key, true), time: e.time, calendar: e.calendar, calendar_color: e.calendar_color, calendar_index: e.calendar_index,
       group: grouping ? (e.date_key <= today ? 'Aujourd’hui' : e.date_key < next.toISOString().slice(0, 10) ? 'Cette semaine' : e.date_key < later.toISOString().slice(0, 10) ? 'Semaine prochaine' : 'Plus tard') : ''}));
     const values = {count: events.length, limit, calendars: feeds.map(f => f.name).join(', '), calendar_count: feeds.length,
       description: feeds.length === 1 ? feeds[0].description : ''};
