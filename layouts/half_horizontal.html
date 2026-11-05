@@ -29,7 +29,7 @@
       {% assign previous_group = event.group %}
       {% endif %}
       <tr class="event-row" data-group="{{ event.group | escape }}">
-        <td class="date text--small lg:text--base py--0.5 px--0">{% assign date_year = event.date | split: ' ' | last %}{{ event.date | remove: date_year | strip | escape }}</td>
+        <td class="date text--small lg:text--base py--0.5 px--0">{{ event.short_date | escape }}</td>
         <td class="time text--small lg:text--base py--0.5 px--0">{{ event.time | escape }}</td>
         <td class="event text--base lg:text--large py--0.5 px--0"><span class="calendar-marker calendar-color-{{ event.calendar_color | escape }}"></span><span class="event-name">{{ event.title | escape }}</span>{% if show_calendar %}<span class="calendar-label text--small lg:text--base">{{ event.calendar | escape }}</span>{% endif %}</td>
       </tr>
