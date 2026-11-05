@@ -4,7 +4,8 @@ const layouts = ['full', 'half_vertical', 'half_horizontal', 'quadrant', 'shared
 for (const name of layouts.filter(name => name !== 'shared')) {
   const source = fs.readFileSync(`layouts/${name}.html`, 'utf8');
   assert.equal((source.match(/class="layout /g) || []).length, 1, `${name} must contain one layout wrapper`);
-  assert(source.includes('class="title_bar"'));
+  if (name !== 'quadrant') assert(source.includes('class="title_bar"'));
+  else assert(!source.includes('class="title_bar"'), 'Quadrant must not reserve a footer');
   assert(source.includes('lg:text--large'), `${name} must use native responsive typography`);
 }
 const markup = layouts.map(name => fs.readFileSync(`layouts/${name}.html`, 'utf8')).join('\n');
