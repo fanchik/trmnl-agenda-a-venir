@@ -1,0 +1,10 @@
+/* French agenda: color is supplementary to the calendar name. */
+.calendar-marker { display:inline-block; width:5px; height:1.05em; margin-right:6px; vertical-align:-0.12em; border-radius:2px; background-color:#64748b; }
+.calendar-color-blue { background-color:#3b82f6; }
+.calendar-color-green { background-color:#16a34a; }
+.calendar-color-amber { background-color:#e8a317; }
+.calendar-color-rose { background-color:#e05c68; }
+.calendar-color-violet { background-color:#a855f7; }
+.calendar-color-cyan { background-color:#0891b2; }
+.calendar-color-orange { background-color:#f97316; }
+.calendar-color-slate { background-color:#64748b; }
