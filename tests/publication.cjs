@@ -17,7 +17,8 @@ assert(!/\bstyle\s*=/i.test(markup), 'Publication markup contains an inline styl
 assert(!/<style\b/i.test(markup), 'Publication markup contains an embedded stylesheet');
 assert(/<link rel="stylesheet" href="https:\/\/cdn\.jsdelivr\.net\/gh\/kweninlondon\/trmnl-calendar-coming-up@[a-f0-9]{40}\/assets\/coming-up\.css">/.test(markup), 'Stylesheet URL must pin an immutable commit');
 const transform = fs.readFileSync('dist/serverless.js', 'utf8');
-for (let i = 1; i <= 5; i++) assert(transform.includes(`fields.ics_${i}`));
+assert(transform.includes("[1, 2, 3, 4, 5].map"), 'Five ICS fields must be enumerated');
+assert(transform.includes("fields['ics_' + i]"), 'Each calendar must be read from user settings');
 assert(Buffer.byteLength(transform) < 100000);
 assert(fs.readFileSync('settings.yml', 'utf8').includes('field_type: author_bio'));
 console.log('Publication checks pass: zero documented style terms, zero inline styles, pinned stylesheet, explicit ICS fields and author bio.');
