@@ -166,7 +166,7 @@ async function fetchFeed(url) {
   if (!/^https:\/\/[^\s/]+\//i.test(address)) throw new Error('Use an HTTPS calendar feed link.');
   // TRMNL may provide fetch without the native Web Streams / AbortSignal globals.
   const options = typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function'
-    ? {signal: AbortSignal.timeout(3500)} : {};
+    ? {signal: AbortSignal.timeout(4300)} : {};
   const response = await fetch(address, options);
   if (!response.ok) throw new Error(`Calendar download failed (HTTP ${response.status}).`);
   const declaredSize = Number(response.headers?.get?.('content-length') || 0);
@@ -177,7 +177,7 @@ async function fetchFeed(url) {
   return text;
 }
 // A separate deadline also covers runtimes whose fetch shim lacks AbortSignal.
-async function downloadFeeds(urls, timeoutMs = 3500) {
+async function downloadFeeds(urls, timeoutMs = 4350) {
   let timer;
   try {
     return await Promise.race([
@@ -215,6 +215,7 @@ async function run(input) {
   const limit = Math.max(1, Math.min(15, parseInt(fields.event_limit, 10) || 10));
   const zone = input.trmnl?.user?.time_zone_iana || 'UTC';
   const now = new Date();
+  const startedAt = Date.now();
   const grouping = ![false, 'false', 'no', '0'].includes(fields.group_events);
   const calendars = [1, 2, 3, 4, 5].map(i => ({
     url: String(fields['ics_' + i] || '').trim(),
@@ -230,7 +231,8 @@ async function run(input) {
     const polled = polledFeeds(input);
     const downloaded = polled.length === urls.length ? polled : await downloadFeeds(urls);
     stage = 'parse';
-    const deadline = Date.now() + 2200;
+    // Keep a small processing budget within TRMNL's overall 5-second runtime.
+    const deadline = Date.now() + Math.max(250, Math.min(2200, 4750 - (Date.now() - startedAt)));
     const feeds = downloaded.map((text, i) => parseFeed(text, i, limit, zone, now, deadline, multiDayMode, calendars[i]?.color || 'blue'));
     stage = 'format';
     const selected = feeds.flatMap(f => f.events).sort((a, b) => a.sort - b.sort || a.title.localeCompare(b.title)).slice(0, limit);
@@ -254,6 +256,8 @@ async function run(input) {
       updated: new Intl.DateTimeFormat('fr-FR', {timeZone: zone, day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23'}).format(now), error: ''};
   } catch (error) {
     // Never echo private feed URLs or parser input into screen/error output.
+    if (error.name === 'TimeoutError') return {title: 'Agenda à venir', footer: 'Téléchargement trop lent', events: [], count: 0,
+      error: 'Google Agenda ne répond pas dans le délai autorisé. Réessayez ou utilisez un relais de calendrier.', updated: ''};
     const safe = /^(Add at least|Use an HTTPS|Calendar download failed|Calendar feed exceeds|Expected an ICS|This feed uses|Calendar is too complex|Recurrence expansion)/.test(error.message);
     return {title: 'Agenda à venir', footer: 'Vérifiez les paramètres', events: [], count: 0,
       error: safe ? error.message : `Erreur de calendrier pendant ${stage} (${error.name || 'Erreur'}).`,
