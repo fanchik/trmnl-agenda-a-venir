@@ -56,7 +56,7 @@ function parseFeed(text, index, limit, zone, now, deadline, mode = 'boundaries',
   const pushRow = (title, ms, allDay, eventTime, dateOverride) => {
     const key = dateOverride || (allDay ? new Date(ms).toISOString().slice(0, 10) : dayKey(new Date(ms), zone));
     rows.push({title, calendar: name, calendar_index: index + 1, calendar_color: color,
-      date_key: key, sort: ms, date: localizedDate(ms, allDay),
+      date_key: key, sort: ms, date: localizedDate(allDay ? Date.parse(key + 'T12:00:00Z') : ms, allDay),
       time: eventTime || localizedTime(ms, allDay)});
   };
   function add(item, start, end, identity) {
@@ -70,7 +70,7 @@ function parseFeed(text, index, limit, zone, now, deadline, mode = 'boundaries',
     const allDay = start.isDate;
     const startDay = allDay ? civilDate(start) : dayKey(new Date(startMs), zone);
     // RFC 5545: DTEND is exclusive; full-day end reminders belong to the previous day.
-    const finalMs = allDay ? endMs - 86400000 : endMs;
+    const finalMs = allDay ? Date.parse(civilDate(end) + 'T12:00:00Z') - 86400000 : endMs;
     const endDay = allDay ? new Date(finalMs).toISOString().slice(0, 10) : dayKey(new Date(Math.max(startMs, endMs - 1)), zone);
     const multiDay = startDay !== endDay;
     const label = clean(item.summary || '(Sans titre)', 100);
