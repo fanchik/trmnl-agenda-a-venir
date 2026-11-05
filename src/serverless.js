@@ -107,8 +107,20 @@ function parseFeed(text, index, limit, zone, now, deadline, mode = 'boundaries',
     const item = new ICAL.Event(component);
     if (component.hasProperty('dtstart')) add(item, item.startDate, item.endDate, item.recurrenceId.toString());
   }
+  // Process nearer starts first. Real Google ICS exports can include many years of history.
+  // Skip obsolete non-repeating events before creating ICAL.Event objects.
+  masters.sort((a, b) => {
+    const x = a.getFirstPropertyValue('dtstart'), y = b.getFirstPropertyValue('dtstart');
+    return (y ? Date.UTC(y.year, y.month - 1, y.day) : 0) -
+      (x ? Date.UTC(x.year, x.month - 1, x.day) : 0);
+  });
   for (const component of masters) {
-    if (Date.now() > deadline) throw new Error('Calendar is too complex for the runtime limit.');
+    // Keep already extracted future events instead of failing the entire calendar.
+    if (Date.now() > deadline) break;
+    if (!component.hasProperty('rrule') && !component.hasProperty('rdate')) {
+      const end = component.getFirstPropertyValue('dtend') || component.getFirstPropertyValue('dtstart');
+      if (end && millis(end, component.getFirstProperty('dtend') || component.getFirstProperty('dtstart'), zone) < now.getTime()) continue;
+    }
     const item = new ICAL.Event(component, {exceptions: []});
     if (!component.hasProperty('dtstart')) continue;
     if (!item.isRecurring()) { add(item, item.startDate, item.endDate, 'single'); continue; }
@@ -131,7 +143,8 @@ function parseFeed(text, index, limit, zone, now, deadline, mode = 'boundaries',
     const iterator = item.iterator();
     let accepted = 0, steps = 0, occurrence;
     while ((occurrence = iterator.next())) {
-      if (++steps > 50000 || Date.now() > deadline) throw new Error('Recurrence expansion exceeded the runtime limit.');
+      // One very old daily rule must not monopolise TRMNL's short runtime.
+      if (++steps > 10000 || Date.now() > deadline) break;
       if (replaced.has(occurrence.toString())) continue;
       const detail = item.getOccurrenceDetails(occurrence);
       const cancelled = String(detail.item.component.getFirstPropertyValue('status')).toUpperCase() === 'CANCELLED';
@@ -217,7 +230,7 @@ async function run(input) {
     const polled = polledFeeds(input);
     const downloaded = polled.length === urls.length ? polled : await downloadFeeds(urls);
     stage = 'parse';
-    const deadline = Date.now() + 1200;
+    const deadline = Date.now() + 2200;
     const feeds = downloaded.map((text, i) => parseFeed(text, i, limit, zone, now, deadline, multiDayMode, calendars[i]?.color || 'blue'));
     stage = 'format';
     const selected = feeds.flatMap(f => f.events).sort((a, b) => a.sort - b.sort || a.title.localeCompare(b.title)).slice(0, limit);
