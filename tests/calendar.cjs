@@ -20,11 +20,30 @@ assert.equal(feed.events[0].title,'Original');
 assert(feed.events.slice(1).every(e=>e.title==='Changed forever' && e.time==='15:00'));
 feed=parse(event(['UID:cancelrange','DTSTART:20261005T120000Z','DTEND:20261005T130000Z','RRULE:FREQ=DAILY','SUMMARY:Original'])+event(['UID:cancelrange','RECURRENCE-ID;RANGE=THISANDFUTURE:20261007T120000Z','STATUS:CANCELLED']));
 assert.equal(feed.events.length,1);
+
+const multi = event(['UID:multi','DTSTART;VALUE=DATE:20261012','DTEND;VALUE=DATE:20261019','SUMMARY:Vacances']);
+const rangeFeed = header + multi + 'END:VCALENDAR\r\n';
+const bounds = context.parseFeed(rangeFeed,0,15,'Europe/London',now,Date.now()+1200,'boundaries','rose');
+assert.equal(bounds.events.length,2);
+assert.equal(bounds.events[0].title,'Début : Vacances');
+assert.equal(bounds.events[1].title,'Fin : Vacances');
+assert.equal(bounds.events[1].date_key,'2026-10-18');
+assert.equal(bounds.events[0].calendar_color,'rose');
+const daily = context.parseFeed(rangeFeed,0,15,'Europe/London',now,Date.now()+1200,'daily','green');
+assert.equal(daily.events.length,7);
+assert.equal(daily.events[6].date_key,'2026-10-18');
+assert.equal(context.parseFeed(rangeFeed,0,15,'Europe/London',now,Date.now()+1200,'hide').events.length,0);
+const dstEvent = header + event(['UID:dst','DTSTART;VALUE=DATE:20261024','DTEND;VALUE=DATE:20261027','SUMMARY:Automne']) + 'END:VCALENDAR\r\n';
+const dst = context.parseFeed(dstEvent,0,15,'Europe/Berlin',now,Date.now()+1200,'boundaries');
+assert.equal(dst.events.length,2);
+assert.equal(dst.events[0].date_key,'2026-10-24');
+assert.equal(dst.events[1].date_key,'2026-10-26');
+
 context.AbortSignal = undefined;
 context.fetch=async ()=>({ok:true, headers:{get:()=>null}, text:async()=>header+event(['UID:z','DTSTART;VALUE=DATE:20300101','DTEND;VALUE=DATE:20300102','SUMMARY:Far ahead'])+'END:VCALENDAR\r\n'});
 (async()=>{
  const result=await context.run({trmnl:{plugin_settings:{custom_fields_values:{ics_1:'https://example.com/calendar.ics',event_limit:15,group_events:false,footer_override:'Next {count} from {calendar_count}'}}}});
- assert.equal(result.title,'Coming Up in Example'); assert.equal(result.title_count_template,'Coming Up in Example');
+ assert.equal(result.title,'À venir — Example'); assert.equal(result.title_count_template,'À venir — Example');
  assert.equal(result.error,''); assert.equal(result.events[0].group,''); assert.equal(result.footer,'Next 1 from 1');
  const polledText = header+event(['UID:p','DTSTART;VALUE=DATE:20300101','DTEND;VALUE=DATE:20300102','SUMMARY:Native polling'])+'END:VCALENDAR\r\n';
  context.fetch=async()=>{throw new Error('Should not fetch when polling supplied ICS');};
@@ -32,7 +51,7 @@ context.fetch=async ()=>({ok:true, headers:{get:()=>null}, text:async()=>header+
  assert.equal(native.error,''); assert.equal(native.events[0].title,'Native polling');
  const timezoneFeed = header+event(['UID:zone','DTSTART:20300101T003000Z','DTEND:20300101T013000Z','SUMMARY:Midnight UTC'])+'END:VCALENDAR\r\n';
  const accountZone=await context.run({data:timezoneFeed,trmnl:{user:{time_zone_iana:'America/Los_Angeles',time_zone:'Pacific Time (US & Canada)'},plugin_settings:{custom_fields_values:{ics_1:'https://example.com/calendar.ics',time_zone:'Europe/London'}}}});
- assert.equal(accountZone.error,'');assert.equal(accountZone.events[0].time,'16:30');assert(accountZone.events[0].date.includes('31 Dec 2029'));
+ assert.equal(accountZone.error,'');assert.equal(accountZone.events[0].time,'16:30');assert(accountZone.events[0].date.includes('31 déc. 2029'));
  const utcZone=await context.run({data:timezoneFeed,trmnl:{plugin_settings:{custom_fields_values:{ics_1:'https://example.com/calendar.ics'}}}});
  assert.equal(utcZone.error,'');assert.equal(utcZone.events[0].time,'00:30');
  const custom=await context.run({data:polledText,trmnl:{plugin_settings:{custom_fields_values:{ics_1:'https://example.com/calendar.ics',title_override:'My agenda'}}}});
@@ -46,7 +65,7 @@ context.fetch=async ()=>({ok:true, headers:{get:()=>null}, text:async()=>header+
  }
  context.fetch=async address=>({ok:true,headers:{get:()=>null},text:async()=>fixtures[address]});
  const five=await context.run({trmnl:{plugin_settings:{custom_fields_values:fields}}});
- assert.equal(five.title,'Coming Up'); assert.equal(five.title_count_template,'Coming Up');
+ assert.equal(five.title,'Agenda à venir'); assert.equal(five.title_count_template,'Agenda à venir');
  assert.equal(five.error,'');assert.equal(five.events.length,15);assert.equal(five.footer,'15 visible / 15 max / 5 calendars');
  assert.equal(five.footer_count_template,'{count} visible / 15 max / 5 calendars');assert(five.show_calendar);
  assert.deepEqual(Array.from(five.events.slice(0,5),e=>e.calendar),['Calendar 1','Calendar 2','Calendar 3','Calendar 4','Calendar 5']);
