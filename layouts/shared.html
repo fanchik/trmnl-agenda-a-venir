@@ -1,6 +1,6 @@
 <!-- Shared stylesheet and responsive fitting used by all four layout tabs. -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kweninlondon/trmnl-calendar-coming-up@abee2ff8f574b86c9bfcc7792b4820b7701bd21c/assets/coming-up.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fanchik/trmnl-agenda-a-venir@8aff0521ee572a86d77f7f4e502a9336508d62fd/assets/agenda-fr.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fanchik/trmnl-agenda-a-venir@9f30c714dceb334c0fec2149f5acb22f786ce6a4/assets/agenda-fr.css">
 
 <script>
 (function () {
@@ -19,7 +19,7 @@
           context.font = type.fontWeight + ' ' + type.fontSize + ' ' + type.fontFamily;
           return context.measureText(cell.textContent.trim()).width;
         }));
-        col.style.width = Math.ceil(width + 12) + 'px';
+        col.style.width = Math.ceil(width + (layout.classList.contains('agenda-quadrant') ? 4 : 12)) + 'px';
       });
     });
     if (!layout.classList.contains('agenda-full')) {
