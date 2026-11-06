@@ -24,3 +24,22 @@
 .agenda-quadrant .next-ten td.event { position:relative; padding-left:8px !important; }
 .agenda-quadrant .calendar-marker { position:absolute; left:2px; top:4px; width:3px; height:0.85em; margin:0; }
 .agenda-quadrant .title_bar .title { display:none; }
+
+/* Minimal agenda rows: no bold titles, one line, saved horizontal space. */
+.agenda-quadrant .next-ten td.event,
+.agenda-half-vertical .next-ten td.event { font-weight:400 !important; }
+.agenda-quadrant .next-ten td.event { font-size:10px !important; }
+.agenda-half-vertical .next-ten td.event { font-size:12px !important; line-height:1.15 !important; padding:3px 2px !important; position:relative; padding-left:8px !important; }
+.agenda-quadrant .next-ten .event-name,
+.agenda-half-vertical .next-ten .event-name,
+.agenda-quadrant .next-ten .calendar-packed .event-name,
+.agenda-half-vertical .next-ten .calendar-packed .event-name,
+.agenda-quadrant .next-ten .calendar-inline .event-name,
+.agenda-half-vertical .next-ten .calendar-inline .event-name {
+  display:block !important; font-weight:400 !important; white-space:nowrap !important;
+  overflow:hidden !important; text-overflow:ellipsis !important;
+  -webkit-line-clamp:1 !important; max-height:none !important; line-height:1.15 !important;
+}
+.agenda-half-vertical .calendar-marker { position:absolute; left:2px; top:5px; width:3px; height:0.85em; margin:0; }
+.agenda-quadrant .next-ten td.time:empty,
+.agenda-half-vertical .next-ten td.time:empty { padding-left:0 !important; padding-right:0 !important; }
