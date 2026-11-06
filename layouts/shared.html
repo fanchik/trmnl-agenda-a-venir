@@ -22,7 +22,7 @@
         col.style.width = Math.ceil(width + (layout.classList.contains('agenda-quadrant') ? 4 : 12)) + 'px';
       });
     });
-    if (!layout.classList.contains('agenda-full')) {
+    if (!layout.classList.contains('agenda-full') && !layout.classList.contains('agenda-quadrant') && !layout.classList.contains('agenda-half-vertical')) {
       layout.querySelectorAll('.event-row:not([hidden]) .event').forEach(function (cell) {
         const title = cell.querySelector('.event-name');
         const label = cell.querySelector('.calendar-label');
