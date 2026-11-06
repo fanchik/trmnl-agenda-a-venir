@@ -250,12 +250,9 @@ async function run(input) {
     stage = 'format';
     const selected = feeds.flatMap(f => f.events).sort((a, b) => a.sort - b.sort || a.title.localeCompare(b.title)).slice(0, limit);
     const today = dayKey(now, zone);
-    const monday = new Date(today + 'T00:00:00Z');
-    monday.setUTCDate(monday.getUTCDate() - ((monday.getUTCDay() + 6) % 7));
-    const next = new Date(monday); next.setUTCDate(next.getUTCDate() + 7);
-    const later = new Date(monday); later.setUTCDate(later.getUTCDate() + 14);
+    // Only two groups: today's agenda and all upcoming days.
     const events = selected.map(e => ({title: e.title, date: e.date, short_date: frenchDate(e.date_key, true), time: e.time, calendar: e.calendar, calendar_color: e.calendar_color, calendar_index: e.calendar_index,
-      group: grouping ? (e.date_key <= today ? 'Aujourd’hui' : e.date_key < next.toISOString().slice(0, 10) ? 'Cette semaine' : e.date_key < later.toISOString().slice(0, 10) ? 'Semaine prochaine' : 'Plus tard') : ''}));
+      group: grouping ? (e.date_key <= today ? 'Aujourd’hui' : 'Demain est un autre jour') : ''}));
     const values = {count: events.length, limit, calendars: feeds.map(f => f.name).join(', '), calendar_count: feeds.length,
       description: feeds.length === 1 ? feeds[0].description : ''};
     const expand = value => clean(String(value).replace(/\{(count|limit|calendars|calendar_count|description)\}/g, (_, key) => values[key]), 150);
