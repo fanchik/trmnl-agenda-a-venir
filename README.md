@@ -1,3 +1,34 @@
+# Agenda à venir — plugin TRMNL en français
+
+Fork de [Coming Up](https://github.com/kweninlondon/trmnl-calendar-coming-up) de Quentin Vien, distribué sous licence MIT.
+
+## Fonctionnalités de notre version
+
+- Calendriers ICS (1 à 5), fusion chronologique.
+- Dates, regroupements et interface en français.
+- **Événements sur plusieurs jours** : rappel quotidien (`daily`), rappels au début et à la fin (`boundaries`, défaut), ou masquage (`hide`).
+- **Couleur par calendrier** : choix parmi huit couleurs, avec repère dans les quatre formats. Les noms restent activables.
+- Même architecture Serverless TRMNL, sans hébergement de flux personnel.
+- Fourni à l'état de **version de développement**, en attente de validation du rendu TRMNL et des tests de régression.
+
+Pour installer la recette, suivre les instructions du [projet d'origine](docs/setup.md), avec nos fichiers `settings.yml`, `dist/serverless.js`, `layouts/shared.html` et les quatre modèles de `layouts/`.
+
+## Développement
+
+```bash
+node scripts/build.cjs
+node tests/calendar.cjs
+node tests/publication.cjs
+```
+
+Les URLs ICS privées sont à renseigner uniquement dans TRMNL, jamais dans GitHub.
+
+## Licences et crédits
+
+Code du fork : licence MIT (conservation de la notice originale). ICAL.js : MPL-2.0. Merci à Quentin Vien pour le plugin d'origine.
+
+---
+
 # Coming Up — a TRMNL calendar recipe
 
 Display upcoming events from up to five ICS calendars, however far ahead they are.

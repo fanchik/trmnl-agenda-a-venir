@@ -1,0 +1,22 @@
+name: Vérification du plugin TRMNL
+on:
+  push:
+    branches: [main, feat/fr-multijours-couleurs]
+  pull_request:
+    branches: [main]
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Reconstruire le bundle
+        run: node scripts/build.cjs
+      - name: Tests calendriers
+        run: node tests/calendar.cjs
+      - name: Tests de publication
+        run: node tests/publication.cjs
+      - name: Vérifier la reproductibilité du bundle
+        run: git diff --exit-code -- dist/serverless.js

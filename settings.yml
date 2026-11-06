@@ -1,86 +1,156 @@
 - keyname: ics_1_label
   field_type: string
   name: Label
-  description: Optional reminder for this link. Does not change the name shown on screen.
-  placeholder: Optional calendar label
+  description: Libellé facultatif pour identifier le lien dans les paramètres.
+  placeholder: Nom facultatif du calendrier
   maxlength: 80
   group: Calendar 1
   optional: true
 
+- keyname: ics_1_color
+  field_type: select
+  name: Couleur du calendrier 1
+  default: blue
+  options:
+    - Bleu: blue
+    - Vert: green
+    - Ambre: amber
+    - Rose: rose
+    - Violet: violet
+    - Turquoise: cyan
+    - Orange: orange
+    - Gris: slate
+
 - keyname: ics_1
   field_type: string
-  name: ICS link
-  description: Paste the calendar feed link, not its browser viewing link.
+  name: Lien ICS
+  description: Collez l’adresse du flux ICS, et non le lien vers sa page web.
   group: Calendar 1
   optional: false
 
 - keyname: ics_2_label
   field_type: string
   name: Label
-  description: Optional reminder for this link. Does not change the name shown on screen.
-  placeholder: Optional calendar label
+  description: Libellé facultatif pour identifier le lien dans les paramètres.
+  placeholder: Nom facultatif du calendrier
   maxlength: 80
   group: Calendar 2
   optional: true
 
+- keyname: ics_2_color
+  field_type: select
+  name: Couleur du calendrier 2
+  default: green
+  options:
+    - Bleu: blue
+    - Vert: green
+    - Ambre: amber
+    - Rose: rose
+    - Violet: violet
+    - Turquoise: cyan
+    - Orange: orange
+    - Gris: slate
+
 - keyname: ics_2
   field_type: string
-  name: ICS link
-  description: Paste the calendar feed link, not its browser viewing link.
+  name: Lien ICS
+  description: Collez l’adresse du flux ICS, et non le lien vers sa page web.
   group: Calendar 2
   optional: true
 
 - keyname: ics_3_label
   field_type: string
   name: Label
-  description: Optional reminder for this link. Does not change the name shown on screen.
-  placeholder: Optional calendar label
+  description: Libellé facultatif pour identifier le lien dans les paramètres.
+  placeholder: Nom facultatif du calendrier
   maxlength: 80
   group: Calendar 3
   optional: true
 
+- keyname: ics_3_color
+  field_type: select
+  name: Couleur du calendrier 3
+  default: amber
+  options:
+    - Bleu: blue
+    - Vert: green
+    - Ambre: amber
+    - Rose: rose
+    - Violet: violet
+    - Turquoise: cyan
+    - Orange: orange
+    - Gris: slate
+
 - keyname: ics_3
   field_type: string
-  name: ICS link
-  description: Paste the calendar feed link, not its browser viewing link.
+  name: Lien ICS
+  description: Collez l’adresse du flux ICS, et non le lien vers sa page web.
   group: Calendar 3
   optional: true
 
 - keyname: ics_4_label
   field_type: string
   name: Label
-  description: Optional reminder for this link. Does not change the name shown on screen.
-  placeholder: Optional calendar label
+  description: Libellé facultatif pour identifier le lien dans les paramètres.
+  placeholder: Nom facultatif du calendrier
   maxlength: 80
   group: Calendar 4
   optional: true
 
+- keyname: ics_4_color
+  field_type: select
+  name: Couleur du calendrier 4
+  default: rose
+  options:
+    - Bleu: blue
+    - Vert: green
+    - Ambre: amber
+    - Rose: rose
+    - Violet: violet
+    - Turquoise: cyan
+    - Orange: orange
+    - Gris: slate
+
 - keyname: ics_4
   field_type: string
-  name: ICS link
-  description: Paste the calendar feed link, not its browser viewing link.
+  name: Lien ICS
+  description: Collez l’adresse du flux ICS, et non le lien vers sa page web.
   group: Calendar 4
   optional: true
 
 - keyname: ics_5_label
   field_type: string
   name: Label
-  description: Optional reminder for this link. Does not change the name shown on screen.
-  placeholder: Optional calendar label
+  description: Libellé facultatif pour identifier le lien dans les paramètres.
+  placeholder: Nom facultatif du calendrier
   maxlength: 80
   group: Calendar 5
   optional: true
 
+- keyname: ics_5_color
+  field_type: select
+  name: Couleur du calendrier 5
+  default: violet
+  options:
+    - Bleu: blue
+    - Vert: green
+    - Ambre: amber
+    - Rose: rose
+    - Violet: violet
+    - Turquoise: cyan
+    - Orange: orange
+    - Gris: slate
+
 - keyname: ics_5
   field_type: string
-  name: ICS link
-  description: Paste the calendar feed link, not its browser viewing link.
+  name: Lien ICS
+  description: Collez l’adresse du flux ICS, et non le lien vers sa page web.
   group: Calendar 5
   optional: true
 
 - keyname: event_limit
   field_type: number
-  name: Maximum events
+  name: Nombre maximal d’événements
   description: Show up to this many upcoming events. Smaller screens may display fewer.
   min: 1
   max: 15
@@ -88,32 +158,32 @@
   default: 10
 - keyname: group_events
   field_type: boolean
-  name: Group by Today, This week, Next week and Later
+  name: Regrouper par aujourd’hui, cette semaine, semaine prochaine et plus tard
   default: true
 - keyname: title_override
   field_type: string
-  name: Custom title
+  name: Titre personnalisé
   optional: true
   maxlength: 150
-  group: Title and footer
+  group: Titre et pied de page
   description: Leave blank for Coming Up in the calendar name, or Coming Up for multiple calendars.
   help_text: 'Example: {count} events from {calendars}. {count} reports events visible on the screen. Optional placeholders: {count}, {limit}, {calendars}, {calendar_count}, {description}.'
 - keyname: footer_override
   field_type: string
-  name: Custom footer
+  name: Pied de page personnalisé
   optional: true
   maxlength: 150
-  group: Title and footer
+  group: Titre et pied de page
   description: Leave blank for the description or event count.
   placeholder: '{count} events coming up'
   help_text: 'Example: {count} events from {calendars}. {count} reports events visible on the screen. Optional placeholders: {count}, {limit}, {calendars}, {calendar_count}, {description}.'
 
 - keyname: about_coming_up
-  name: About Coming Up
+  name: À propos d’Agenda à venir
   field_type: author_bio
   category: calendar,productivity
-  github_url: https://github.com/kweninlondon/trmnl-calendar-coming-up
-  learn_more_url: https://github.com/kweninlondon/trmnl-calendar-coming-up#readme
+  github_url: https://github.com/fanchik/trmnl-agenda-a-venir
+  learn_more_url: https://github.com/fanchik/trmnl-agenda-a-venir#readme
   description: >-
     Coming Up displays your next calendar events, however far ahead they are.
     Combine up to five ICS calendars into one chronological agenda, with a maximum
@@ -123,7 +193,22 @@
     multiple calendars display a label alongside each event. Customise the title
     and footer with calendar names and automatic visible event counts.<br><br>
     Includes full screen, half vertical, two-column half horizontal and quadrant
-    layouts. Just enter your ICS links; no additional calendar scripts or hosting
+    layouts. Just enter your Lien ICSs; no additional calendar scripts or hosting
     accounts are required.<br><br>
     Created by Quentin Vien. For setup instructions, source code or support,
     visit the GitHub repository and open an issue.
+
+- keyname: multi_day_mode
+  field_type: select
+  name: Événements sur plusieurs jours
+  description: Choisissez entre un rappel quotidien, un rappel au début et à la fin, ou aucun affichage.
+  default: boundaries
+  options:
+    - Chaque jour: daily
+    - Début et fin uniquement: boundaries
+    - Masquer: hide
+
+- keyname: show_calendar_names
+  field_type: boolean
+  name: Afficher le nom des calendriers
+  default: true

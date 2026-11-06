@@ -18,6 +18,14 @@ function parts(date, zone) {
 function dayKey(date, zone) {
   const p = parts(date, zone); return `${p.year}-${p.month}-${p.day}`;
 }
+// French date labels are built explicitly: some TRMNL runtimes have English-only Intl data.
+const DAYS_FR = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+const MONTHS_FR = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+function frenchDate(key, short = false) {
+  const [year, month, day] = key.split('-').map(Number);
+  const weekday = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
+  return DAYS_FR[weekday] + ' ' + day + ' ' + MONTHS_FR[month - 1] + (short ? '' : ' ' + year);
+}
 function civilDate(time) {
   return `${time.year}-${String(time.month).padStart(2, '0')}-${String(time.day).padStart(2, '0')}`;
 }
@@ -40,7 +48,7 @@ function millis(time, prop, displayZone) {
   if (!tzid && time.zone.tzid === 'floating') return wallMillis(time, displayZone);
   return time.toUnixTime() * 1000;
 }
-function parseFeed(text, index, limit, zone, now, deadline) {
+function parseFeed(text, index, limit, zone, now, deadline, mode = 'boundaries', color = 'blue') {
   ICAL.TimezoneService.reset();
   const root = new ICAL.Component(ICAL.parse(text));
   if (root.name !== 'vcalendar') throw new Error('Expected an ICS calendar feed.');
@@ -48,13 +56,22 @@ function parseFeed(text, index, limit, zone, now, deadline) {
     const id = tz.getFirstPropertyValue('tzid');
     ICAL.TimezoneService.register(new ICAL.Timezone({component: tz, tzid: id}), id);
   }
-  const name = clean(root.getFirstPropertyValue('x-wr-calname') || root.getFirstPropertyValue('name') || `Calendar ${index + 1}`, 60);
+  const name = clean(root.getFirstPropertyValue('x-wr-calname') || root.getFirstPropertyValue('name') || `Calendrier ${index + 1}`, 60);
   const description = clean(root.getFirstPropertyValue('x-wr-caldesc') || root.getFirstPropertyValue('description'), 150);
   const components = root.getAllSubcomponents('vevent');
   const masters = components.filter(c => !c.hasProperty('recurrence-id'));
   const overrides = components.filter(c => c.hasProperty('recurrence-id'));
   const rows = [];
   const seen = new Set();
+  const localizedDate = (key) => frenchDate(key);
+  const localizedTime = (ms, allDay) => allDay ? 'Toute la journée' :
+    new Intl.DateTimeFormat('fr-FR', {timeZone: zone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23'}).format(new Date(ms));
+  const pushRow = (title, ms, allDay, eventTime, dateOverride) => {
+    const key = dateOverride || (allDay ? new Date(ms).toISOString().slice(0, 10) : dayKey(new Date(ms), zone));
+    rows.push({title, calendar: name, calendar_index: index + 1, calendar_color: color,
+      date_key: key, sort: ms, date: localizedDate(key),
+      time: eventTime || localizedTime(ms, allDay)});
+  };
   function add(item, start, end, identity) {
     if (String(item.component.getFirstPropertyValue('status')).toUpperCase() === 'CANCELLED') return false;
     const startMs = millis(start, item.component.getFirstProperty('dtstart'), zone);
@@ -63,12 +80,39 @@ function parseFeed(text, index, limit, zone, now, deadline) {
     const key = `${item.uid}|${identity}`;
     if (seen.has(key)) return false;
     seen.add(key);
-    const dateKey = start.isDate ? civilDate(start) : dayKey(new Date(startMs), zone);
-    const displayDate = start.isDate ? new Date(dateKey + 'T12:00:00Z') : new Date(startMs);
-    rows.push({title: clean(item.summary || '(Untitled event)', 100), calendar: name,
-      date_key: dateKey, sort: startMs,
-      date: new Intl.DateTimeFormat('en-GB', {timeZone: start.isDate ? 'UTC' : zone, weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'}).format(displayDate),
-      time: start.isDate ? 'All day' : new Intl.DateTimeFormat('en-GB', {timeZone: zone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23'}).format(displayDate)});
+    const allDay = start.isDate;
+    const startDay = allDay ? civilDate(start) : dayKey(new Date(startMs), zone);
+    // RFC 5545: DTEND is exclusive; full-day end reminders belong to the previous day.
+    const finalMs = allDay ? Date.parse(civilDate(end) + 'T12:00:00Z') - 86400000 : endMs;
+    const endDay = allDay ? new Date(finalMs).toISOString().slice(0, 10) : dayKey(new Date(Math.max(startMs, endMs - 1)), zone);
+    const multiDay = startDay !== endDay;
+    const label = clean(item.summary || '(Sans titre)', 100);
+    if (!multiDay) {
+      pushRow(label, startMs, allDay, undefined, startDay);
+    } else if (mode === 'hide') {
+      return false;
+    } else if (mode === 'daily') {
+      // Enumerate only the forward-looking days, with a hard cap for extremely long events.
+      let day = startDay, count = 0;
+      const currentDay = dayKey(now, zone);
+      while (day <= endDay && count++ < 3660) {
+        if (day >= currentDay) {
+          const dayMs = allDay ? Date.parse(day + 'T12:00:00Z') : wallMillis({
+            year: +day.slice(0, 4), month: +day.slice(5, 7), day: +day.slice(8, 10), hour: 0, minute: 0
+          }, zone);
+          // Do not show a start-of-day placeholder for a past day.
+          if (dayMs >= now.getTime() || day === currentDay) pushRow(label, dayMs, allDay, allDay ? 'Toute la journée' : 'En cours', day);
+        }
+        const nextDay = new Date(day + 'T12:00:00Z');
+        nextDay.setUTCDate(nextDay.getUTCDate() + 1);
+        day = nextDay.toISOString().slice(0, 10);
+        if (rows.length >= limit) break;
+      }
+    } else {
+      if (startMs >= now.getTime()) pushRow('Début : ' + label, startMs, allDay, undefined, startDay);
+      const finishMs = allDay ? Date.parse(endDay + 'T12:00:00Z') : endMs;
+      if (finishMs >= now.getTime()) pushRow('Fin : ' + label, finishMs, allDay, allDay ? 'Toute la journée' : undefined, endDay);
+    }
     return true;
   }
   // Process moved occurrences separately so an occurrence moved much earlier is not missed.
@@ -76,8 +120,20 @@ function parseFeed(text, index, limit, zone, now, deadline) {
     const item = new ICAL.Event(component);
     if (component.hasProperty('dtstart')) add(item, item.startDate, item.endDate, item.recurrenceId.toString());
   }
+  // Process nearer starts first. Real Google ICS exports can include many years of history.
+  // Skip obsolete non-repeating events before creating ICAL.Event objects.
+  masters.sort((a, b) => {
+    const x = a.getFirstPropertyValue('dtstart'), y = b.getFirstPropertyValue('dtstart');
+    return (y ? Date.UTC(y.year, y.month - 1, y.day) : 0) -
+      (x ? Date.UTC(x.year, x.month - 1, x.day) : 0);
+  });
   for (const component of masters) {
-    if (Date.now() > deadline) throw new Error('Calendar is too complex for the runtime limit.');
+    // Keep already extracted future events instead of failing the entire calendar.
+    if (Date.now() > deadline) break;
+    if (!component.hasProperty('rrule') && !component.hasProperty('rdate')) {
+      const end = component.getFirstPropertyValue('dtend') || component.getFirstPropertyValue('dtstart');
+      if (end && millis(end, component.getFirstProperty('dtend') || component.getFirstProperty('dtstart'), zone) < now.getTime()) continue;
+    }
     const item = new ICAL.Event(component, {exceptions: []});
     if (!component.hasProperty('dtstart')) continue;
     if (!item.isRecurring()) { add(item, item.startDate, item.endDate, 'single'); continue; }
@@ -100,7 +156,8 @@ function parseFeed(text, index, limit, zone, now, deadline) {
     const iterator = item.iterator();
     let accepted = 0, steps = 0, occurrence;
     while ((occurrence = iterator.next())) {
-      if (++steps > 50000 || Date.now() > deadline) throw new Error('Recurrence expansion exceeded the runtime limit.');
+      // One very old daily rule must not monopolise TRMNL's short runtime.
+      if (++steps > 10000 || Date.now() > deadline) break;
       if (replaced.has(occurrence.toString())) continue;
       const detail = item.getOccurrenceDetails(occurrence);
       const cancelled = String(detail.item.component.getFirstPropertyValue('status')).toUpperCase() === 'CANCELLED';
@@ -122,7 +179,7 @@ async function fetchFeed(url) {
   if (!/^https:\/\/[^\s/]+\//i.test(address)) throw new Error('Use an HTTPS calendar feed link.');
   // TRMNL may provide fetch without the native Web Streams / AbortSignal globals.
   const options = typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function'
-    ? {signal: AbortSignal.timeout(3500)} : {};
+    ? {signal: AbortSignal.timeout(4300)} : {};
   const response = await fetch(address, options);
   if (!response.ok) throw new Error(`Calendar download failed (HTTP ${response.status}).`);
   const declaredSize = Number(response.headers?.get?.('content-length') || 0);
@@ -133,7 +190,7 @@ async function fetchFeed(url) {
   return text;
 }
 // A separate deadline also covers runtimes whose fetch shim lacks AbortSignal.
-async function downloadFeeds(urls, timeoutMs = 3500) {
+async function downloadFeeds(urls, timeoutMs = 4350) {
   let timer;
   try {
     return await Promise.race([
@@ -171,8 +228,14 @@ async function run(input) {
   const limit = Math.max(1, Math.min(15, parseInt(fields.event_limit, 10) || 10));
   const zone = input.trmnl?.user?.time_zone_iana || 'UTC';
   const now = new Date();
+  const startedAt = Date.now();
   const grouping = ![false, 'false', 'no', '0'].includes(fields.group_events);
-  const urls = [...new Set([fields.ics_1, fields.ics_2, fields.ics_3, fields.ics_4, fields.ics_5].map(value => String(value || '').trim()).filter(Boolean))];
+  const calendars = [1, 2, 3, 4, 5].map(i => ({
+    url: String(fields['ics_' + i] || '').trim(),
+    color: String(fields['ics_' + i + '_color'] || ['blue', 'green', 'amber', 'rose', 'violet'][i - 1])
+  })).filter(feed => feed.url);
+  const urls = [...new Set(calendars.map(feed => feed.url))];
+  const multiDayMode = ['daily', 'boundaries', 'hide'].includes(fields.multi_day_mode) ? fields.multi_day_mode : 'boundaries';
   let stage = 'timezone';
   try {
     parts(now, zone); // Validate timezone before processing any feed.
@@ -181,33 +244,33 @@ async function run(input) {
     const polled = polledFeeds(input);
     const downloaded = polled.length === urls.length ? polled : await downloadFeeds(urls);
     stage = 'parse';
-    const deadline = Date.now() + 1200;
-    const feeds = downloaded.map((text, i) => parseFeed(text, i, limit, zone, now, deadline));
+    // Keep a small processing budget within TRMNL's overall 5-second runtime.
+    const deadline = Date.now() + Math.max(250, Math.min(2200, 4750 - (Date.now() - startedAt)));
+    const feeds = downloaded.map((text, i) => parseFeed(text, i, limit, zone, now, deadline, multiDayMode, calendars[i]?.color || 'blue'));
     stage = 'format';
     const selected = feeds.flatMap(f => f.events).sort((a, b) => a.sort - b.sort || a.title.localeCompare(b.title)).slice(0, limit);
     const today = dayKey(now, zone);
-    const monday = new Date(today + 'T00:00:00Z');
-    monday.setUTCDate(monday.getUTCDate() - ((monday.getUTCDay() + 6) % 7));
-    const next = new Date(monday); next.setUTCDate(next.getUTCDate() + 7);
-    const later = new Date(monday); later.setUTCDate(later.getUTCDate() + 14);
-    const events = selected.map(e => ({title: e.title, date: e.date, time: e.time, calendar: e.calendar,
-      group: grouping ? (e.date_key <= today ? 'Today' : e.date_key < next.toISOString().slice(0, 10) ? 'This week' : e.date_key < later.toISOString().slice(0, 10) ? 'Next week' : 'Later') : ''}));
+    // Only two groups: today's agenda and all upcoming days.
+    const events = selected.map(e => ({title: e.title, date: e.date, short_date: frenchDate(e.date_key, true), time: e.time, calendar: e.calendar, calendar_color: e.calendar_color, calendar_index: e.calendar_index,
+      group: grouping ? (e.date_key <= today ? 'Aujourd’hui' : 'Demain est un autre jour') : ''}));
     const values = {count: events.length, limit, calendars: feeds.map(f => f.name).join(', '), calendar_count: feeds.length,
       description: feeds.length === 1 ? feeds[0].description : ''};
     const expand = value => clean(String(value).replace(/\{(count|limit|calendars|calendar_count|description)\}/g, (_, key) => values[key]), 150);
-    const defaultTitle = feeds.length === 1 ? 'Coming Up in {calendars}' : 'Coming Up';
-    const defaultFooter = values.description || '{count} events coming up';
+    const defaultTitle = feeds.length === 1 ? 'À venir — {calendars}' : 'Agenda à venir';
+    const defaultFooter = values.description || '{count} événements à venir';
     const countTemplate = value => clean(String(value).replace(/\{(limit|calendars|calendar_count|description)\}/g, (_, key) => values[key]), 150);
     return {title: expand(fields.title_override || defaultTitle), footer: expand(fields.footer_override || defaultFooter),
       title_count_template: countTemplate(fields.title_override || defaultTitle),
       footer_count_template: countTemplate(fields.footer_override || defaultFooter),
-      events, show_calendar: feeds.length > 1, grouping, count: events.length,
-      updated: new Intl.DateTimeFormat('en-GB', {timeZone: zone, day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23'}).format(now), error: ''};
+      events, show_calendar: feeds.length > 1 && ![false, 'false', 'no', '0'].includes(fields.show_calendar_names), grouping, count: events.length,
+      updated: new Intl.DateTimeFormat('fr-FR', {timeZone: zone, day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23'}).format(now), error: ''};
   } catch (error) {
     // Never echo private feed URLs or parser input into screen/error output.
+    if (error.name === 'TimeoutError') return {title: 'Agenda à venir', footer: 'Téléchargement trop lent', events: [], count: 0,
+      error: 'Google Agenda ne répond pas dans le délai autorisé. Réessayez ou utilisez un relais de calendrier.', updated: ''};
     const safe = /^(Add at least|Use an HTTPS|Calendar download failed|Calendar feed exceeds|Expected an ICS|This feed uses|Calendar is too complex|Recurrence expansion)/.test(error.message);
-    return {title: 'Coming Up', footer: 'Check calendar settings', events: [], count: 0,
-      error: safe ? error.message : `Calendar error during ${stage} (${error.name || 'Error'}). Please report this message.`,
+    return {title: 'Agenda à venir', footer: 'Vérifiez les paramètres', events: [], count: 0,
+      error: safe ? error.message : `Erreur de calendrier pendant ${stage} (${error.name || 'Erreur'}).`,
       input_keys: Object.keys(input).filter(k => k !== 'trmnl'), polled_feed_count: polledFeeds(input).length, updated: ''};
   }
 }

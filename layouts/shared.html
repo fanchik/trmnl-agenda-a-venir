@@ -1,5 +1,6 @@
 <!-- Shared stylesheet and responsive fitting used by all four layout tabs. -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kweninlondon/trmnl-calendar-coming-up@abee2ff8f574b86c9bfcc7792b4820b7701bd21c/assets/coming-up.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fanchik/trmnl-agenda-a-venir@19d82bfd34ca9e6fc55c9a2a80483aa2d5eb0361/assets/agenda-fr.css">
 
 <script>
 (function () {
@@ -18,10 +19,10 @@
           context.font = type.fontWeight + ' ' + type.fontSize + ' ' + type.fontFamily;
           return context.measureText(cell.textContent.trim()).width;
         }));
-        col.style.width = Math.ceil(width + 12) + 'px';
+        col.style.width = Math.ceil(width + (layout.classList.contains('agenda-quadrant') ? 4 : 12)) + 'px';
       });
     });
-    if (!layout.classList.contains('agenda-full')) {
+    if (!layout.classList.contains('agenda-full') && !layout.classList.contains('agenda-quadrant') && !layout.classList.contains('agenda-half-vertical')) {
       layout.querySelectorAll('.event-row:not([hidden]) .event').forEach(function (cell) {
         const title = cell.querySelector('.event-name');
         const label = cell.querySelector('.calendar-label');
@@ -75,6 +76,8 @@
     return Math.min(1, minimum / parseFloat(getComputedStyle(event).fontSize));
   }
   function enlarge(layout, fits) {
+    // Quadrant is deliberately compact even with only one or two events.
+    if (layout.classList.contains('agenda-quadrant')) return;
     const titles = Array.from(layout.querySelectorAll('.event-row:not([hidden]) .event-name, .event-row:not([hidden]) .calendar-label'));
     const lines = node => Math.max(1, Math.round(node.scrollHeight / parseFloat(getComputedStyle(node).lineHeight)));
     const originalLines = titles.map(lines);
@@ -120,8 +123,12 @@
       sizeColumns(layout);
       updateCount(events.length);
       if (!events.length) return;
-      const bottom = Math.min(layout.getBoundingClientRect().bottom,
-        footer ? footer.getBoundingClientRect().top : screen.getBoundingClientRect().bottom) - 8;
+      // When the quadrant has no title bar, use its allocated mashup view,
+      // not the layout's content height (which can be smaller than the view).
+      const view = layout.closest('.view') || screen;
+      const bottom = footer
+        ? Math.min(layout.getBoundingClientRect().bottom, footer.getBoundingClientRect().top) - 4
+        : view.getBoundingClientRect().bottom - 4;
       if (table.getBoundingClientRect().bottom <= bottom) { enlarge(layout, () => table.getBoundingClientRect().bottom <= bottom); return; }
       let visible = events.length;
       while (visible > 0) {
@@ -172,7 +179,7 @@
             const continuing = index === 0 && group === continuedGroup;
             const heading = document.createElement('tr'); heading.className = continuing ? 'section section-continuation' : 'section';
             const cell = document.createElement('th'); cell.colSpan = 3; cell.className = 'text--base lg:text--large text--left pt--1.5 pb--1 px--1.5';
-            cell.textContent = group + (continuing ? ' (Cont.)' : '');
+            cell.textContent = group + (continuing ? ' (suite)' : '');
             heading.appendChild(cell); body.appendChild(heading); previous = group;
           }
           body.appendChild(row.cloneNode(true));
